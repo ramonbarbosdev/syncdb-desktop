@@ -1,0 +1,69 @@
+{
+  "name": "syncdb-desktop",
+  "version": "1.0.1",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:electron": "electron-builder"
+  },
+  "author": "Ramon Barbosa",
+  "description": "Aplicativo de sincronização de banco de dados desktop",
+  "license": "MIT",
+  "homepage": "https://github.com/ramonbarbosdev/syncdb-desktop",
+  "devDependencies": {
+    "dotenv": "^16.5.0",
+    "electron": "^36.4.0",
+    "electron-builder": "^26.0.12",
+    "http-server": "^14.1.1"
+  },
+  "dependencies": {
+    "electron-log": "^5.4.1",
+    "tree-kill": "^1.2.2"
+  },
+  "build": {
+    "appId": "com.suaempresa.syncdb",
+    "productName": "SyncDB Desktop",
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "ramonbarbosdev",
+        "repo": "syncdb-desktop"
+      }
+    ],
+    "asarUnpack": [
+      "backend/jre",
+      "backend/syncdb.jar"
+    ],
+    "files": [
+      "package.json",
+      "main.js",
+      "backend/**/*",
+      "dist/browser/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "backend/jre",
+        "to": "backend/jre"
+      },
+      {
+        "from": "backend/syncdb.jar",
+        "to": "backend/syncdb.jar"
+      }
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.ico"
+    },
+    "mac": {
+      "category": "public.app-category.utilities",
+      "icon": "build/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "build/icon.png"
+    }
+  }
+}

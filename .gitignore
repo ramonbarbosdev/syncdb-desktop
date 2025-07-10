@@ -1,0 +1,8 @@
+/dist
+/release
+/node_modules
+/.env
+# /backend/jre
+# /backend/syncdb.jar
+# /backend/jre.zip
+/backend
