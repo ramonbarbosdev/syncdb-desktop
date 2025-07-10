@@ -1,4 +1,4 @@
-# 📦 MeuApp - Aplicativo Desktop com Electron + Spring Boot + Angular
+# 📦 SyncDB - Aplicativo Desktop com Electron + Spring Boot + Angular
 
 Este é um aplicativo desktop desenvolvido com **Electron**, que embute:
 - Um **backend em Spring Boot (JAR)**,

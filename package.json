@@ -27,7 +27,9 @@
       {
         "provider": "github",
         "owner": "ramonbarbosdev",
-        "repo": "syncdb-desktop"
+        "repo": "syncdb-desktop",
+        "releaseType": "release",
+        "vPrefixedTagName": true
       }
     ],
     "asarUnpack": [
