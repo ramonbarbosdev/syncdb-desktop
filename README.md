@@ -66,7 +66,8 @@ Link do JRE: https://drive.google.com/file/d/1ojelh9bPaOSPRMSMtxzh1lX0xQ_HWcX_/v
 
 npm install
 npx electron-builder --win --x64
-
+set GH_TOKEN=seu_token_clássico
+npx electron-builder --win --x64 --publish always
 ---
 
 ###  Segurança
