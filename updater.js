@@ -1,20 +1,15 @@
 const { autoUpdater } = require("electron-updater");
 
-const { ipcMain } = require("electron");
-
-
 function setupAutoUpdater() {
   autoUpdater.checkForUpdatesAndNotify();
 
   autoUpdater.on("update-available", () => {
-    console.log("🔄 Atualização disponívellll.");
-    if (mainWindow)   mainWindow.webContents.send("update_available");
+    console.log("🔄 Atualização disponível.");
   });
 
   autoUpdater.on("update-downloaded", () => {
-    console.log("✅ Atualização baixadaaaaa.");
+    console.log("✅ Atualização baixada.");
     autoUpdater.quitAndInstall();
-    if (mainWindow)    mainWindow.webContents.send("update_downloaded");
   });
 
   autoUpdater.on("error", (err) => {
