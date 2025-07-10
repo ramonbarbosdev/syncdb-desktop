@@ -4,6 +4,7 @@ const { spawn } = require("child_process");
 const http = require("http");
 const fs = require("fs");
 const treeKill = require("tree-kill");
+const { autoUpdater } = require("electron-updater");
 
 let mainWindow;
 let backendProcess;
@@ -162,8 +163,22 @@ function createWindow() {
 }
 
 app.on("ready", () => {
+  autoUpdater.checkForUpdatesAndNotify();
   startBackend();
   createWindow();
+});
+
+autoUpdater.on("update-available", () => {
+  console.log("🔄 Atualização disponível.");
+});
+
+autoUpdater.on("update-downloaded", () => {
+  console.log("✅ Atualização baixada. Instalando...");
+  autoUpdater.quitAndInstall();
+});
+
+autoUpdater.on("error", (err) => {
+  console.error("❌ Erro ao verificar atualização:", err);
 });
 
 
