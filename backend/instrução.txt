@@ -1,1 +1,2 @@
 para funcionar corretamente nescessario descompactar o arquivo jre pois é a maquina virtual nescessaria para gerar o back end
+nescessario
