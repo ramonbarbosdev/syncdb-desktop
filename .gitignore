@@ -4,5 +4,5 @@
 /.env
 # /backend/jre
 # /backend/syncdb.jar
-# /backend/jre.zip
+/backend/jre.zip
 /backend
