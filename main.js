@@ -1,5 +1,5 @@
 const { app } = require("electron");
-const { startBackend, backendProcess } = require("./backend");
+const { startBackend, backendProcess } = require("./back-end");
 const { createWindow, frontendServer } = require("./window");
 const { setupAutoUpdater } = require("./updater");
 
