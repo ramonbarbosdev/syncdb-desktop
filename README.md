@@ -68,6 +68,7 @@ npm install
 npx electron-builder --win --x64
 set GH_TOKEN=seu_token_clássico
 npx electron-builder --win --x64 --publish always
+
 ---
 
 ###  Segurança
