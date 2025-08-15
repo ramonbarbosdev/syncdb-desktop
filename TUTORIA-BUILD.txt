@@ -31,3 +31,8 @@ Build do Electron para Linux:
 
 Permissao pra pasta root:
     sudo chmod -R 755 ~/
+
+
+rm -r alguma_coisa
+cp -r /mnt/c/Users/Ramon/Documents/dev/Java/syncdb/target/syncdb.jar  ~/meusprojetos/syncdb-desktop/backend/
+cp -r /mnt/c/Users/Ramon/Documents/dev/Angular/front-syncdb/dist/* ~/meusprojetos/syncdb-desktop/
