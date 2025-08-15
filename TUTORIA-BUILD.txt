@@ -28,3 +28,6 @@ Instalar Java (para backend):
     java -jar backend/syncdb.jar --server.port=8081 --app.db.path=./data/syncdb.sqlite
 Build do Electron para Linux:
     npx electron-builder --linux
+
+Permissao pra pasta root:
+    sudo chmod -R 755 ~/
