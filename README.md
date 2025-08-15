@@ -65,9 +65,11 @@ Link do JRE: https://drive.google.com/file/d/1ojelh9bPaOSPRMSMtxzh1lX0xQ_HWcX_/v
 ### Gerando o instalador com electron-builder
 
 npm install
-set GH_TOKEN=seu_token_clássico
+set GH_TOKEN=seu_token_clássico -- win
+export GH_TOKEN="seu_token_clássico"  --  linux
 npm version patch
 npx electron-builder --win --x64 --publish always 
+npx electron-builder --linux --publish always 
 
 ---
 

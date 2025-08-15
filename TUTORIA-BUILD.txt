@@ -1,2 +1,30 @@
 npm start
 npm run build:electron
+
+--TUTORIAL BUILD LINUX--
+Instalar WSL e Ubuntu
+
+No PowerShell do Windows, execute:
+    wsl --install -d Ubuntu
+    Conta: ramon
+    Senha: ramon
+    - Após a instalação, abra o Ubuntu no WSL.
+    sudo apt update
+    sudo apt install -y nodejs npm libarchive-tools rpm fakeroot
+    sudo apt install -y git
+Entrar no Ubuntu / root (opcional):
+    wsl -d Ubuntu
+    sudo -i
+    mkdir ~/meusprojetos
+    cd ~/meusprojetos
+Clonar o repositório:
+    git clone https://github.com/ramonbarbosdev/syncdb-desktop.git
+    cd syncdb-desktop
+    npm install
+Instalar Java (para backend):
+    sudo apt install -y openjdk-17-jre-headless
+    java -version
+    - Testar execução do backend
+    java -jar backend/syncdb.jar --server.port=8081 --app.db.path=./data/syncdb.sqlite
+Build do Electron para Linux:
+    npx electron-builder --linux

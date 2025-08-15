@@ -6,9 +6,10 @@ const treeKill = require("tree-kill");
 
 let backendProcess;
 
-function startBackend(onReadyCallback) {
+function startBackend(createWindowCallback) {
   const isPackaged = app.isPackaged;
 
+  // Caminho do JAR do backend
   const jarPath = isPackaged
     ? path.join(process.resourcesPath, "backend", "syncdb.jar")
     : path.join(__dirname, "backend", "syncdb.jar");
@@ -19,32 +20,37 @@ function startBackend(onReadyCallback) {
     return;
   }
 
-  // 🔐 Caminho persistente e seguro para armazenar o SQLite
+  // Caminho persistente para armazenar SQLite
   const userDataPath = app.getPath("userData");
-  console.log("Caminho da pasta userData:", userDataPath);
   const dataDir = path.join(userDataPath, "data");
-
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-
+  if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir, { recursive: true });
   const dbPath = path.join(dataDir, "syncdb.sqlite").replace(/\\/g, "/");
 
-  const basePath = isPackaged
-    ? path.join(process.resourcesPath, "backend", "jre")
-    : path.join(__dirname, "backend", "jre");
-
-  const javaExecutable =
-    process.platform === "win32"
-      ? path.join(basePath, "bin", "java.exe")
-      : path.join(basePath, "bin", "java");
-
-  if (!fs.existsSync(javaExecutable)) {
-    console.error("Java não encontrado:", javaExecutable);
-    app.quit();
-    return;
+  // Caminho do Java (Windows usa JRE embutido, Linux usa Java do sistema)
+  let javaExecutable;
+  if (process.platform === "win32") {
+    javaExecutable = path.join(basePath, "bin", "java.exe");
+    if (!fs.existsSync(javaExecutable)) {
+      console.error("Java não encontrado:", javaExecutable);
+      app.quit();
+      return;
+    }
+  } else {
+    // Linux: assume que java está no PATH do sistema
+    javaExecutable = "java";
+    const { execSync } = require("child_process");
+    try {
+      execSync(`${javaExecutable} -version`, { stdio: "ignore" });
+    } catch (err) {
+      console.error(
+        "Java não encontrado no Linux. Instale com: sudo apt install openjdk-17-jre-headless"
+      );
+      app.quit();
+      return;
+    }
   }
 
+  // Inicia o backend
   backendProcess = spawn(javaExecutable, [
     "-jar",
     jarPath,
@@ -57,7 +63,7 @@ function startBackend(onReadyCallback) {
     console.log(`Backend stdout: ${text}`);
     if (text.includes("Started") && text.includes("Tomcat")) {
       // Backend pronto: carregar a janela
-      createWindow();
+      if (createWindowCallback) createWindowCallback();
     }
   });
 
@@ -70,6 +76,7 @@ function startBackend(onReadyCallback) {
   });
 }
 
+// Encerra o backend ao fechar o app
 app.on("before-quit", () => {
   if (backendProcess && !backendProcess.killed) {
     treeKill(backendProcess.pid, "SIGTERM", (err) => {

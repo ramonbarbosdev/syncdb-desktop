@@ -1,10 +1,11 @@
 {
   "name": "syncdb-desktop",
-  "version": "1.0.29",
+  "version": "1.0.30",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build:electron": "electron-builder"
+    "build:win": "electron-builder --win",
+    "build:linux": "electron-builder --linux"
   },
   "author": "Ramon Barbosa",
   "description": "Aplicativo de sincronização de banco de dados desktop",
@@ -33,24 +34,15 @@
         "vPrefixedTagName": true
       }
     ],
-    "asarUnpack": [
-      "backend/jre",
-      "backend/syncdb.jar"
-    ],
     "files": [
       "package.json",
       "main.js",
       "updater.js",
       "window.js",
       "back-end.js",
-      "backend/**/*",
       "dist/browser/**/*"
     ],
     "extraResources": [
-      {
-        "from": "backend/jre",
-        "to": "backend/jre"
-      },
       {
         "from": "backend/syncdb.jar",
         "to": "backend/syncdb.jar"
@@ -61,7 +53,13 @@
     },
     "win": {
       "target": "nsis",
-      "icon": "build/icon.ico"
+      "icon": "build/icon.ico",
+      "extraResources": [
+        {
+          "from": "backend/jre",
+          "to": "backend/jre"
+        }
+      ]
     },
     "mac": {
       "category": "public.app-category.utilities",
