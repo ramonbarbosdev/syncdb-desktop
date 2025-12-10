@@ -3,3 +3,10 @@ netstat -ano | findstr :8081 (ou a porta que quer fechar)
 ex:   TCP    0.0.0.0:8081           0.0.0.0:0              LISTENING       1234
 tasklist /fi "PID eq 1234"
 taskkill /PID 7628 /F
+
+
+--
+caso dê erro no backend va na pasta:
+C:\Users\NOME_DO_USUARIO\CAMINHO_DO_PROJETO\syncdb-desktop\release\win-unpacked\resources\backend
+rode:
+jre\bin\java.exe -jar syncdb.jar --server.port=8081

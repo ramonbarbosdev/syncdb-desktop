@@ -19,17 +19,6 @@ function startBackend(onReadyCallback) {
     return;
   }
 
-  // 🔐 Caminho persistente e seguro para armazenar o SQLite
-  const userDataPath = app.getPath("userData");
-  console.log("Caminho da pasta userData:", userDataPath);
-  const dataDir = path.join(userDataPath, "data");
-
-  if (!fs.existsSync(dataDir)) {
-    fs.mkdirSync(dataDir, { recursive: true });
-  }
-
-  const dbPath = path.join(dataDir, "syncdb.sqlite").replace(/\\/g, "/");
-
   const basePath = isPackaged
     ? path.join(process.resourcesPath, "backend", "jre")
     : path.join(__dirname, "backend", "jre");
@@ -48,15 +37,15 @@ function startBackend(onReadyCallback) {
   backendProcess = spawn(javaExecutable, [
     "-jar",
     jarPath,
-    "--server.port=8081",
-    `--app.db.path=${dbPath}`,
+    "--server.port=8081"
   ]);
 
   backendProcess.stdout.on("data", (data) => {
     const text = data.toString();
     console.log(`Backend stdout: ${text}`);
     if (text.includes("Started") && text.includes("Tomcat")) {
-      // Backend pronto: carregar a janela
+      // backend pronto: carregar a janela
+       console.log("Backend iniciado com sucesso!");
       createWindow();
     }
   });
