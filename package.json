@@ -40,6 +40,7 @@
       "updater.js",
       "window.js",
       "back-end.js",
+      "preload.js",
       "dist/browser/**/*"
     ],
     "extraResources": [

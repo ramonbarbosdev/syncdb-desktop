@@ -5,9 +5,9 @@ let mainWindowRef = null;
 let updateChecked = false;
 
 
-// setTimeout(() => {
-//   mainWindowRef.webContents.send("update-available");
-// }, 3000);
+setTimeout(() => {
+  mainWindowRef.webContents.send("update-available");
+}, 3000);
 
 // setTimeout(() => {
 //   mainWindowRef.webContents.send("update-progress", { percent: 45 });
@@ -36,12 +36,7 @@ function setupAutoUpdater(mainWindow) {
   autoUpdater.autoDownload = false;
 
   // Check silencioso ao iniciar
-  // CHECK AUTOMÁTICO APENAS EM PRODUÇÃO
-  if (app.isPackaged) {
-    autoUpdater.checkForUpdates();
-  } else {
-    console.log("🧪 Modo DEV: check automático desabilitado");
-  }
+  autoUpdater.checkForUpdates();
 
 
   autoUpdater.on("update-available", () => {
