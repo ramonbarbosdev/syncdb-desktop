@@ -1,15 +1,25 @@
 const { app } = require("electron");
+const path = require("path");
+const treeKill = require("tree-kill");
+
 const { startBackend, backendProcess } = require("./back-end");
 const { createWindow, frontendServer } = require("./window");
 const { setupAutoUpdater } = require("./updater");
 
+const isDev = !app.isPackaged;
+
+const startUrl = isDev
+  ? "http://localhost:4200"
+  : `file://${path.join(__dirname, "../dist/index.html")}`;
+
 app.on("ready", () => {
   setupAutoUpdater();
-  startBackend(() => {
-    createWindow();
-  });
-  createWindow();
 
+
+  startBackend(() => {
+    createWindow(startUrl);
+  });
+    createWindow();
 });
 
 app.on("before-quit", () => {
@@ -27,7 +37,9 @@ app.on("before-quit", () => {
   }
 
   if (frontendServer) {
-    frontendServer.close(() => console.log("Servidor frontend encerrado."));
+    frontendServer.close(() =>
+      console.log("Servidor frontend encerrado.")
+    );
   }
 });
 
@@ -38,7 +50,7 @@ app.on("window-all-closed", () => {
 });
 
 app.on("activate", () => {
-  if (mainWindow === null) {
-    createWindow();
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow(startUrl);
   }
 });
