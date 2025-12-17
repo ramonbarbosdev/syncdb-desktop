@@ -5,9 +5,9 @@ let mainWindowRef = null;
 let updateChecked = false;
 
 
-setTimeout(() => {
-  mainWindowRef.webContents.send("update-available");
-}, 3000);
+// setTimeout(() => {
+//   mainWindowRef.webContents.send("update-available");
+// }, 3000);
 
 // setTimeout(() => {
 //   mainWindowRef.webContents.send("update-progress", { percent: 45 });
