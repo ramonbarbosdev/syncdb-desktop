@@ -1,10 +1,15 @@
-const { app } = require("electron");
+const { app, BrowserWindow, ipcMain } = require("electron");
 const path = require("path");
 const treeKill = require("tree-kill");
 
 const { startBackend, backendProcess } = require("./back-end");
 const { createWindow, frontendServer } = require("./window");
-const { setupAutoUpdater } = require("./updater");
+const {
+  setupAutoUpdater,
+  startDownload,
+  installUpdate,
+  checkForUpdatesManual
+} = require("./updater");
 
 const isDev = !app.isPackaged;
 
@@ -12,14 +17,31 @@ const startUrl = isDev
   ? "http://localhost:4200"
   : `file://${path.join(__dirname, "../dist/index.html")}`;
 
-app.on("ready", () => {
-  setupAutoUpdater();
+let mainWindow;
 
+// IPC para check manual
+ipcMain.handle("check-update-manual", () => {
+  checkForUpdatesManual();
+});
+
+app.whenReady().then(() => {
+
+  mainWindow = createWindow(startUrl);
+
+  setupAutoUpdater(mainWindow);
 
   startBackend(() => {
-    createWindow(startUrl);
-  });
     createWindow();
+  });
+});
+
+// IPC do updater
+ipcMain.handle("start-update-download", () => {
+  startDownload();
+});
+
+ipcMain.handle("install-update", () => {
+  installUpdate();
 });
 
 app.on("before-quit", () => {
@@ -51,6 +73,7 @@ app.on("window-all-closed", () => {
 
 app.on("activate", () => {
   if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow(startUrl);
+    mainWindow = createWindow(startUrl);
+    setupAutoUpdater(mainWindow);
   }
 });

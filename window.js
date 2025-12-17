@@ -5,6 +5,7 @@ const fs = require("fs");
 
 let mainWindow;
 let frontendServer;
+let frontendBaseUrl; // guarda a URL raiz real
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -12,11 +13,13 @@ function createWindow() {
     height: 800,
     webPreferences: {
       nodeIntegration: false,
-      contextIsolation: true
+      contextIsolation: true,
+      preload: path.join(__dirname, "preload.js")
     }
   });
 
   startFrontendServer((url) => {
+    frontendBaseUrl = url;
     mainWindow.loadURL(url);
   });
 
@@ -30,14 +33,21 @@ function createWindow() {
 
     if (isReload || isF5) {
       event.preventDefault();
-      mainWindow.loadURL(mainWindow.webContents.getURL().split("/").slice(0, 3).join("/"));
+      if (frontendBaseUrl) {
+        mainWindow.loadURL(frontendBaseUrl);
+      }
     }
   });
 
   mainWindow.on("closed", () => {
     mainWindow = null;
-    if (frontendServer) frontendServer.close();
+    if (frontendServer) {
+      frontendServer.close();
+      frontendServer = null;
+    }
   });
+
+  return mainWindow;
 }
 
 /**
@@ -47,17 +57,14 @@ function startFrontendServer(callback) {
   const frontendPath = path.join(__dirname, "dist", "browser", "browser");
 
   frontendServer = http.createServer((req, res) => {
-    let filePath = path.join(frontendPath, req.url);
+    let filePath = path.join(frontendPath, req.url.split("?")[0]);
 
-    // remove query string
-    filePath = filePath.split("?")[0];
-
-    // se for raiz
+    // raiz
     if (req.url === "/" || req.url === "") {
       filePath = path.join(frontendPath, "index.html");
     }
 
-    // se não existir, cai no index.html (SPA fallback)
+    // fallback SPA
     if (!fs.existsSync(filePath)) {
       filePath = path.join(frontendPath, "index.html");
     }
@@ -101,4 +108,9 @@ function getContentType(filePath) {
   );
 }
 
-module.exports = { createWindow, frontendServer };
+module.exports = {
+  createWindow,
+  get frontendServer() {
+    return frontendServer;
+  }
+};
