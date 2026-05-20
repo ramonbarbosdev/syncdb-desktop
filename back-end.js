@@ -19,14 +19,16 @@ function startBackend(onReadyCallback) {
     return;
   }
 
-  const basePath = isPackaged
+  const jrePath = isPackaged
     ? path.join(process.resourcesPath, "backend", "jre")
     : path.join(__dirname, "backend", "jre");
 
   const javaExecutable =
     process.platform === "win32"
-      ? path.join(basePath, "bin", "java.exe")
-      : path.join(basePath, "bin", "java");
+      ? path.join(jrePath, "bin", "java.exe")
+      : process.platform === "darwin"
+        ? path.join(jrePath, "Contents", "Home", "bin", "java")
+        : path.join(jrePath, "bin", "java");
 
   if (!fs.existsSync(javaExecutable)) {
     console.error("Java não encontrado:", javaExecutable);

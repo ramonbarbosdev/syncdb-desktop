@@ -5,6 +5,7 @@
   "scripts": {
     "start": "electron .",
     "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac --arm64",
     "build:linux": "electron-builder --linux"
   },
   "author": "Ramon Barbosa",
@@ -64,7 +65,13 @@
     },
     "mac": {
       "category": "public.app-category.utilities",
-      "icon": "assets/icon.ico"
+      "icon": "assets/icon.icns",
+      "extraResources": [
+        {
+          "from": "backend/jre",
+          "to": "backend/jre"
+        }
+      ]
     },
     "linux": {
       "target": "AppImage",

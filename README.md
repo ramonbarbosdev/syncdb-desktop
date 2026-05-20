@@ -1,4 +1,4 @@
-# 📦 SyncDB - Aplicativo Desktop com Electron + Spring Boot + Angular
+# SyncDB - Aplicativo Desktop com Electron + Spring Boot + Angular
 
 Este é um aplicativo desktop desenvolvido com **Electron**, que embute:
 - Um **backend em Spring Boot (JAR)**,
@@ -8,7 +8,7 @@ Este é um aplicativo desktop desenvolvido com **Electron**, que embute:
 
 ---
 
-## 🚀 Como funciona
+## Como funciona
 
 - Ao iniciar, o Electron roda a JRE embutida e executa o backend (JAR).
 - O Angular é servido localmente via servidor HTTP embutido.
@@ -17,7 +17,7 @@ Este é um aplicativo desktop desenvolvido com **Electron**, que embute:
 
 ---
 
-## 🧾 Estrutura do projeto
+## Estrutura do projeto
 
 ---
 
@@ -30,7 +30,7 @@ Este é um aplicativo desktop desenvolvido com **Electron**, que embute:
 
 ---
 
-## ⚙️ Requisitos para build local
+## Requisitos para build local
 
 - Node.js ≥ 18
 - Java 17 (somente para build do Spring Boot)
@@ -39,7 +39,7 @@ Este é um aplicativo desktop desenvolvido com **Electron**, que embute:
 
 ---
 
-## 🛠️ Build local
+## Build local
 
 ### 1. Build do backend (Spring Boot)
 
@@ -53,13 +53,13 @@ cd frontend
 npm install
 npm run build
 
-### 3. Copie o JAR e a JRE para o local esperado
+### 3. Copie o JRE para o local esperado
 
 mkdir -p backend
 cp target/syncdb.jar backend/
 # Coloque a pasta da JRE portátil em: backend/jre/
-Link do JRE: https://drive.google.com/file/d/1ojelh9bPaOSPRMSMtxzh1lX0xQ_HWcX_/view?usp=drive_link
-
+Link do JRE Win: https://drive.google.com/file/d/1ojelh9bPaOSPRMSMtxzh1lX0xQ_HWcX_/view?usp=drive_link
+Link do JRE Mac: https://drive.google.com/file/d/1dn3HCfABRzCe2slKol91FyJndjDp9NvV/view?usp=drive_link
 ---
 
 ### Gerando o instalador com electron-builder
@@ -69,6 +69,7 @@ set GH_TOKEN=seu_token_clássico -- win
 export GH_TOKEN="seu_token_clássico"  --  linux
 npm version patch
 npx electron-builder --win --x64 --publish always 
+npx electron-builder --mac --arm64 --publish always / npm run build:mac
 npx electron-builder --linux --publish always 
 
 ---
