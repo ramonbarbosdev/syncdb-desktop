@@ -147,7 +147,20 @@ function findJavaExecutable(searchRoot, platform) {
   return javaExecutable;
 }
 
-function getJavaRoot(javaExecutable) {
+function getJavaRoot(javaExecutable, platform) {
+  if (platform === 'macos') {
+    const parts = path.normalize(javaExecutable).split(path.sep);
+    const contentsIndex = parts.lastIndexOf('Contents');
+
+    if (
+      contentsIndex > 0 &&
+      parts[contentsIndex + 1] === 'Home' &&
+      parts[contentsIndex + 2] === 'bin'
+    ) {
+      return parts.slice(0, contentsIndex).join(path.sep);
+    }
+  }
+
   return path.resolve(javaExecutable, '..', '..');
 }
 
@@ -231,7 +244,7 @@ existsOrFail(
 console.log(`\nProcurando Java em: ${platformJresPath}`);
 
 const sourceJavaExecutable = findJavaExecutable(platformJresPath, platform);
-const sourceJre = getJavaRoot(sourceJavaExecutable);
+const sourceJre = getJavaRoot(sourceJavaExecutable, platform);
 
 existsOrFail(sourceJavaExecutable, 'Executavel Java encontrado nao existe.');
 existsOrFail(sourceJre, 'Pasta raiz da JRE/JDK encontrada nao existe.');
