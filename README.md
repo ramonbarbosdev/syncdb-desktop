@@ -1,116 +1,39 @@
 # SyncDB Desktop
 
-Aplicação desktop multiplataforma construída com Electron, Angular e Spring Boot.
+O SyncDB Desktop é a distribuição desktop oficial do SyncDB.
 
-O SyncDB Desktop distribui em um único instalador:
+A aplicação utiliza Electron para empacotar e distribuir:
 
 * Frontend Angular
 * Backend Spring Boot
-* JRE embarcada
+* Runtime Java embarcado (JRE)
 * Atualizações automáticas
-* Instalação sem dependências externas
 
-O usuário não precisa instalar Java, Node.js ou qualquer outro runtime para utilizar o sistema.
-
----
-
-# Arquitetura
-
-O projeto é composto por três repositórios independentes:
-
-```text
-app-sincdb
-├── Frontend Angular
-
-api-sincdb
-├── Backend Spring Boot
-
-syncdb-desktop
-├── Aplicação Electron
-├── Empacotamento
-├── Atualizações
-└── Distribuição
-```
-
-Durante o processo de release:
-
-```text
-Angular
-    ↓
-Build
-
-Spring Boot
-    ↓
-Build
-
-Electron
-    ↓
-Empacota Front + API + JRE
-
-Electron Builder
-    ↓
-Gera Instalador
-
-GitHub Releases
-    ↓
-Distribui Atualizações
-```
+O objetivo é permitir que o usuário instale e utilize o sistema sem precisar instalar Java, Node.js ou qualquer dependência adicional.
 
 ---
 
-# Funcionamento
+# Como a aplicação funciona
 
-Ao iniciar o aplicativo:
+Ao abrir o SyncDB Desktop:
 
 ```text
 Electron
     ↓
-Inicializa JRE embarcada
+Inicia o backend Spring Boot
     ↓
-Executa Spring Boot
-    ↓
-Carrega Frontend Angular
+Carrega o frontend Angular
     ↓
 Verifica atualizações
 ```
 
-O backend é executado localmente em uma porta interna.
-
-O frontend é servido pelo próprio Electron.
-
----
-
-# Estrutura do Projeto
-
-```text
-syncdb-desktop/
-├── assets/
-├── backend/
-│   ├── syncdb.jar
-│   └── jre/
-├── dist/
-├── docs/
-├── scripts/
-│   ├── prepare-release.js
-│   └── release.js
-├── jres/
-│   ├── windows/
-│   ├── linux/
-│   └── macos/
-├── .github/
-│   └── workflows/
-├── main.js
-├── back-end.js
-├── updater.js
-├── preload.js
-├── window.js
-├── build.config.json
-└── package.json
-```
+Toda a execução acontece localmente na máquina do usuário.
 
 ---
 
 # Requisitos para Desenvolvimento
+
+Para desenvolver ou gerar novas versões são necessários:
 
 * Node.js 22+
 * Java 21+
@@ -119,32 +42,56 @@ syncdb-desktop/
 
 ---
 
-# Configuração Local
+# Projetos Necessários
 
-Arquivo:
+O processo de build utiliza três repositórios:
 
 ```text
-build.config.json
+app-sincdb
+Frontend Angular
+
+api-sincdb
+Backend Spring Boot
+
+syncdb-desktop
+Empacotamento Electron
 ```
 
-Exemplo:
+Antes de gerar uma versão, todos os projetos devem estar disponíveis localmente.
+
+---
+
+# Configuração Local
+
+O arquivo `build.config.json` informa ao Electron onde localizar os projetos Angular e Spring Boot.
+
+Exemplo Windows:
 
 ```json
 {
-  "frontPath": "C:/Users/Ramon/Documents/dev/Angular/app-sincdb",
-  "apiPath": "C:/Users/Ramon/Documents/dev/Java/api-sincdb",
+  "frontPath": "C:/Users/Ramon/Documents/dev/app-sincdb",
+  "apiPath": "C:/Users/Ramon/Documents/dev/api-sincdb",
   "angularDistPath": "dist/browser",
   "jarName": "syncdb.jar"
 }
 ```
 
-Esse arquivo é utilizado apenas para builds locais.
+Exemplo macOS:
+
+```json
+{
+  "frontPath": "/Users/ramon/Documents/dev/app-sincdb",
+  "apiPath": "/Users/ramon/Documents/dev/api-sincdb",
+  "angularDistPath": "dist/browser",
+  "jarName": "syncdb.jar"
+}
+```
 
 ---
 
-# Desenvolvimento
+# Executando em Desenvolvimento
 
-Executa o Electron em modo desenvolvimento:
+Para iniciar o Electron:
 
 ```bash
 npm start
@@ -152,11 +99,17 @@ npm start
 
 ---
 
-# Build Local
+# Gerando uma Nova Versão
 
-## Preparar Release
+## Preparar Artefatos
 
-Compila Angular, Spring Boot e prepara os artefatos necessários para o Electron.
+Executa automaticamente:
+
+* Build Angular
+* Build Spring Boot
+* Copia frontend
+* Copia JAR
+* Copia JRE
 
 Comando:
 
@@ -164,24 +117,7 @@ Comando:
 npm run prepare:release
 ```
 
-Esse processo executa automaticamente:
-
-```text
-✓ Build Angular
-✓ Build Spring Boot
-✓ Copia Frontend
-✓ Copia JAR
-✓ Copia JRE
-✓ Prepara Electron
-```
-
-Resultado:
-
-```text
-dist/
-backend/syncdb.jar
-backend/jre/
-```
+Esse comando apenas prepara os arquivos necessários.
 
 Nenhum instalador é gerado.
 
@@ -189,233 +125,189 @@ Nenhuma publicação é realizada.
 
 ---
 
-# Gerar Instaladores
+## Gerar Instalador
 
-## Windows
+Windows:
 
 ```bash
 npm run release:win
 ```
 
-## Linux
+Linux:
 
 ```bash
 npm run release:linux
 ```
 
-## macOS
+macOS:
 
 ```bash
 npm run release:mac
 ```
 
-Resultado:
+Ao final, os instaladores serão gerados na pasta:
 
 ```text
 release/
-├── Setup.exe
-├── AppImage
-└── DMG
 ```
-
-Nenhuma publicação é realizada.
 
 ---
 
 # Versionamento
 
-## Patch
-
-Incrementa:
-
-```text
-1.0.0 → 1.0.1
-```
-
-Comando:
+Patch:
 
 ```bash
 npm run version:patch
 ```
 
----
-
-## Minor
-
-Incrementa:
+Exemplo:
 
 ```text
-1.0.0 → 1.1.0
+1.0.66 → 1.0.67
 ```
 
-Comando:
+Minor:
 
 ```bash
 npm run version:minor
 ```
 
----
-
-## Major
-
-Incrementa:
+Exemplo:
 
 ```text
-1.0.0 → 2.0.0
+1.0.66 → 1.1.0
 ```
 
-Comando:
+Major:
 
 ```bash
 npm run version:major
 ```
 
+Exemplo:
+
+```text
+1.0.66 → 2.0.0
+```
+
 ---
 
-# Release Local Completa
+# Fluxo de Release
 
-## Patch + Build Windows
+## 1. Gerar nova versão
+
+Exemplo Windows:
 
 ```bash
 npm run release:patch:win
 ```
 
-Executa:
+O processo:
 
 ```text
 Atualiza versão
-    ↓
+↓
 Build Angular
-    ↓
-Build Spring Boot
-    ↓
+↓
+Build API
+↓
 Prepara Electron
-    ↓
-Gera Instalador Windows
+↓
+Gera Instalador
 ```
-
-Ainda não publica nenhuma versão.
 
 ---
 
-# Publicação
+## 2. Validar o instalador
 
-Após validar o instalador:
+Antes da publicação:
+
+* Instalar localmente
+* Verificar inicialização
+* Verificar backend
+* Verificar frontend
+* Verificar atualização
+
+---
+
+## 3. Publicar
+
+Após validação:
 
 ```bash
 npm run release:publish
 ```
 
-Esse comando executa:
+Esse comando:
 
 ```text
-git add .
-git commit
-git tag vX.X.X
-git push
-git push origin vX.X.X
+Cria commit
+↓
+Cria tag
+↓
+Envia para GitHub
 ```
 
 ---
 
-# GitHub Actions
+# Publicação Automática
 
-A pipeline é executada automaticamente quando uma tag é enviada:
+Ao enviar uma tag:
 
-```yaml
-on:
-  push:
-    tags:
-      - "v*"
+```text
+v1.0.67
 ```
 
-Exemplo:
-
-```bash
-git tag v1.0.67
-git push origin v1.0.67
-```
+o GitHub Actions inicia automaticamente.
 
 Fluxo:
 
 ```text
 Tag
-    ↓
+↓
 GitHub Actions
-    ↓
-Build Electron
-    ↓
-Electron Builder
-    ↓
+↓
+Build
+↓
 GitHub Release
+↓
+Disponibilização para atualização automática
 ```
 
 ---
 
 # Atualizações Automáticas
 
-O projeto utiliza:
+O SyncDB Desktop utiliza Electron Updater integrado ao GitHub Releases.
+
+Quando uma nova versão é publicada:
 
 ```text
-electron-updater
-```
-
-Provider:
-
-```text
-GitHub Releases
-```
-
-Fluxo:
-
-```text
-Nova Release Publicada
-    ↓
-Usuário abre o aplicativo
-    ↓
-Verificação de atualização
-    ↓
-Download
-    ↓
+Usuário abre o sistema
+↓
+Nova versão encontrada
+↓
+Download automático
+↓
 Instalação
 ```
 
-Quando uma nova versão é publicada, os usuários já instalados podem receber a atualização automaticamente.
+Nenhuma ação manual é necessária pelo usuário.
 
 ---
 
-# Artefatos Ignorados
+# Checklist para Produção
 
-Arquivos gerados automaticamente:
+Antes de publicar uma nova versão:
 
-```text
-/dist/
-/release/
-/node_modules/
-
-/backend/jre/
-/backend/syncdb.jar
-
-/jres/windows/
-/jres/linux/
-/jres/macos/
-```
-
----
-
-# Segurança
-
-* JRE embarcada
-* Sem dependência de Java externo
-* Backend isolado localmente
-* Comunicação protegida via preload.js
-* Distribuição controlada via GitHub Releases
-
----
-
-# Licença
-
-MIT
+* Versão atualizada
+* Frontend compilando
+* Backend compilando
+* Instalador gerado
+* Teste local realizado
+* GitHub Actions configurado
+* Release publicada
 
 ---
 
