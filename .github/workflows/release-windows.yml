@@ -1,0 +1,82 @@
+name: Release Windows
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Electron
+        uses: actions/checkout@v4
+        with:
+          path: syncdb-desktop
+          fetch-depth: 0
+
+      - name: Checkout Frontend
+        uses: actions/checkout@v4
+        with:
+          repository: ramonbarbosdev/app-sincdb
+          path: app-sincdb
+          token: ${{ secrets.CI_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Checkout API
+        uses: actions/checkout@v4
+        with:
+          repository: ramonbarbosdev/api-sincdb
+          path: api-sincdb
+          token: ${{ secrets.CI_PAT || secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            syncdb-desktop/package-lock.json
+            app-sincdb/package-lock.json
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Create CI build config
+        shell: pwsh
+        run: |
+          @'
+          {
+            "frontPath": "../app-sincdb",
+            "apiPath": "../api-sincdb",
+            "angularDistPath": "dist/browser",
+            "jarName": "syncdb.jar"
+          }
+          '@ | Set-Content -Path "syncdb-desktop/build.config.json" -Encoding UTF8
+
+      - name: Install Electron dependencies
+        working-directory: syncdb-desktop
+        run: npm ci
+
+      - name: Prepare Windows JRE
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path syncdb-desktop/jres/windows | Out-Null
+          Copy-Item -Path "$env:JAVA_HOME\*" -Destination "syncdb-desktop/jres/windows" -Recurse
+
+      - name: Prepare release
+        working-directory: syncdb-desktop
+        run: npm run prepare:release
+
+      - name: Build and publish Windows release
+        working-directory: syncdb-desktop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx electron-builder --win --publish always

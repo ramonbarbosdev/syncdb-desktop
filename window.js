@@ -54,7 +54,7 @@ function createWindow() {
  * Servidor HTTP interno com fallback SPA
  */
 function startFrontendServer(callback) {
-  const frontendPath = path.join(__dirname, "dist", "browser", "browser");
+  const frontendPath = path.join(__dirname, "dist", "browser");
 
   frontendServer = http.createServer((req, res) => {
     let filePath = path.join(frontendPath, req.url.split("?")[0]);

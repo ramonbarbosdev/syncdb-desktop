@@ -171,11 +171,32 @@ function findJarFile(targetPath) {
   return path.resolve(targetPath, jars[0]);
 }
 
+function getNpmInstallCommand(projectRoot) {
+  return fs.existsSync(path.resolve(projectRoot, 'package-lock.json'))
+    ? 'npm ci'
+    : 'npm install';
+}
+
+function getMavenCommand(projectRoot) {
+  const windowsWrapper = path.resolve(projectRoot, 'mvnw.cmd');
+  const unixWrapper = path.resolve(projectRoot, 'mvnw');
+
+  if (process.platform === 'win32' && fs.existsSync(windowsWrapper)) {
+    return 'mvnw.cmd clean package -DskipTests';
+  }
+
+  if (process.platform !== 'win32' && fs.existsSync(unixWrapper)) {
+    return './mvnw clean package -DskipTests';
+  }
+
+  return 'mvn clean package -DskipTests';
+}
+
 existsOrFail(frontRoot, 'Projeto frontend nao encontrado.');
 existsOrFail(apiRoot, 'Projeto API nao encontrado.');
 
 console.log('\nBuildando frontend Angular...');
-run('npm install', frontRoot);
+run(getNpmInstallCommand(frontRoot), frontRoot);
 run('npm run build -- --configuration production --base-href ./', frontRoot);
 
 existsOrFail(angularDist, 'Build do Angular nao encontrado.');
@@ -187,7 +208,7 @@ console.log('\nCopiando frontend para o Electron...');
 copyDir(angularDist, electronDist);
 
 console.log('\nBuildando API Spring Boot...');
-run('mvn clean package -DskipTests', apiRoot);
+run(getMavenCommand(apiRoot), apiRoot);
 
 existsOrFail(apiTarget, 'Pasta target da API nao encontrada.');
 

@@ -2,6 +2,7 @@
 /release
 /node_modules
 /.env
+/build.config.json
 /backend/jre/
 /backend/syncdb.jar
 /jres/windows/
