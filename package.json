@@ -1,6 +1,6 @@
 {
   "name": "syncdb-desktop",
-  "version": "1.0.67",
+  "version": "1.0.69",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -17,6 +17,12 @@
     "release:patch:win": "npm run version:patch && npm run release:win",
     "release:minor:win": "npm run version:minor && npm run release:win",
     "release:major:win": "npm run version:major && npm run release:win",
+    "release:patch:linux": "npm run version:patch && npm run release:linux",
+    "release:minor:linux": "npm run version:minor && npm run release:linux",
+    "release:major:linux": "npm run version:major && npm run release:linux",
+    "release:patch:mac": "npm run version:patch && npm run release:mac",
+    "release:minor:mac": "npm run version:minor && npm run release:mac",
+    "release:major:mac": "npm run version:major && npm run release:mac",
     "release:publish": "node scripts/release.js"
   },
   "author": "Ramon Barbosa",
@@ -77,6 +83,10 @@
     "mac": {
       "category": "public.app-category.utilities",
       "icon": "assets/icon.icns",
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "extraResources": [
         {
           "from": "backend/jre",
@@ -86,7 +96,12 @@
     },
     "linux": {
       "target": "AppImage",
-      "icon": "build/icon.png"
+      "extraResources": [
+        {
+          "from": "backend/jre",
+          "to": "backend/jre"
+        }
+      ]
     }
   }
 }
