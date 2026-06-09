@@ -4,4 +4,6 @@
 /.env
 /backend/jre/
 /backend/syncdb.jar
-# /backend
+/jres/windows/
+/jres/macos/
+/jres/linux/
