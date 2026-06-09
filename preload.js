@@ -23,6 +23,9 @@ contextBridge.exposeInMainWorld("updater", {
   installUpdate: () =>
     ipcRenderer.invoke("install-update"),
 
+  openLatestRelease: () =>
+    ipcRenderer.invoke("updater:open-latest-release"),
+
   // 🔍 NOVO — check manual
   checkForUpdates: () =>
     ipcRenderer.invoke("check-update-manual")

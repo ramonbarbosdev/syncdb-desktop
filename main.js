@@ -8,7 +8,8 @@ const {
   setupAutoUpdater,
   startDownload,
   installUpdate,
-  checkForUpdatesManual
+  checkForUpdatesManual,
+  openLatestRelease
 } = require("./updater");
 
 const isDev = !app.isPackaged;
@@ -42,6 +43,10 @@ ipcMain.handle("start-update-download", () => {
 
 ipcMain.handle("install-update", () => {
   installUpdate();
+});
+
+ipcMain.handle("updater:open-latest-release", () => {
+  openLatestRelease();
 });
 
 app.on("before-quit", () => {
