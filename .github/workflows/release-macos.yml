@@ -73,6 +73,9 @@ jobs:
             cp -R "$JAVA_HOME"/. syncdb-desktop/jres/macos/
           fi
 
+      - name: Fix Maven Wrapper permission
+        run: chmod +x api-sincdb/mvnw
+
       - name: Prepare release
         working-directory: syncdb-desktop
         run: npm run prepare:release

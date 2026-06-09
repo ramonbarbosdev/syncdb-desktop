@@ -69,6 +69,9 @@ jobs:
           mkdir -p syncdb-desktop/jres/linux
           cp -R "$JAVA_HOME"/. syncdb-desktop/jres/linux/
 
+      - name: Fix Maven Wrapper permission
+        run: chmod +x api-sincdb/mvnw
+
       - name: Prepare release
         working-directory: syncdb-desktop
         run: npm run prepare:release
