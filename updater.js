@@ -84,7 +84,7 @@ function startDownload() {
 }
 
 function installUpdate() {
-  autoUpdater.quitAndInstall();
+  autoUpdater.quitAndInstall(false, true);
 }
 
 module.exports = {

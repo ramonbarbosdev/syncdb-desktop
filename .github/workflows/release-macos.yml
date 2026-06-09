@@ -64,6 +64,17 @@ jobs:
         working-directory: syncdb-desktop
         run: npm ci
 
+      - name: Validate package version
+        working-directory: syncdb-desktop
+        run: |
+          PACKAGE_VERSION="$(node -p "require('./package.json').version")"
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+
+          if [[ "$PACKAGE_VERSION" != "$TAG_VERSION" ]]; then
+            echo "Versao do package.json ($PACKAGE_VERSION) diferente da tag ($TAG_VERSION)"
+            exit 1
+          fi
+
       - name: Prepare macOS JRE
         run: |
           mkdir -p syncdb-desktop/jres/macos
@@ -80,8 +91,66 @@ jobs:
         working-directory: syncdb-desktop
         run: npm run prepare:release
 
-      - name: Build and publish macOS release
+      - name: Validate Apple signing secrets
+        shell: bash
+        env:
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          test -n "$CSC_LINK" || (echo "CSC_LINK nao configurado" && exit 1)
+          test -n "$CSC_KEY_PASSWORD" || (echo "CSC_KEY_PASSWORD nao configurado" && exit 1)
+
+          if [[ -z "$APPLE_ID" || -z "$APPLE_APP_SPECIFIC_PASSWORD" || -z "$APPLE_TEAM_ID" ]]; then
+            echo "::warning::Secrets de notarizacao nao estao completos. O app sera assinado, mas pode nao ser notarizado."
+          fi
+
+      - name: Build macOS release
         working-directory: syncdb-desktop
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npx electron-builder --mac --publish always
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: npx electron-builder --mac --publish never
+
+      - name: Validate macOS signature
+        working-directory: syncdb-desktop
+        run: |
+          codesign --verify --deep --strict --verbose=4 "release/mac/SyncDB Desktop.app"
+          spctl -a -vvv -t install "release/mac/SyncDB Desktop.app"
+
+      - name: Validate macOS update artifacts
+        working-directory: syncdb-desktop
+        run: |
+          test -f release/latest-mac.yml || (echo "latest-mac.yml nao encontrado" && exit 1)
+
+          ZIP_FILE="$(find release -maxdepth 1 -name '*.zip' | head -n 1)"
+          DMG_FILE="$(find release -maxdepth 1 -name '*.dmg' | head -n 1)"
+
+          test -n "$ZIP_FILE" || (echo "ZIP do macOS nao encontrado" && exit 1)
+          test -n "$DMG_FILE" || (echo "DMG do macOS nao encontrado" && exit 1)
+
+          grep -F "$(basename "$ZIP_FILE")" release/latest-mac.yml \
+            || (echo "latest-mac.yml nao referencia o ZIP gerado pelo electron-builder" && exit 1)
+
+      - name: Publish macOS release assets
+        working-directory: syncdb-desktop
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          shopt -s nullglob
+
+          gh release view "$GITHUB_REF_NAME" >/dev/null 2>&1 \
+            || gh release create "$GITHUB_REF_NAME" --title "$GITHUB_REF_NAME" --notes "Release $GITHUB_REF_NAME"
+
+          gh release upload "$GITHUB_REF_NAME" \
+            release/*.dmg \
+            release/*.zip \
+            release/*.blockmap \
+            release/latest-mac.yml \
+            --clobber
