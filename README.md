@@ -250,6 +250,12 @@ Envia para GitHub
 ```
 
 ---
+Desbloquear restrinção no MacOS
+```text
+xattr -dr com.apple.quarantine "/Applications/SyncDB Desktop.app"
+open "/Applications/SyncDB Desktop.app"
+```
+---
 
 # Publicação Automática
 
