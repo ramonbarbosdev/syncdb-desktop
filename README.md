@@ -251,8 +251,11 @@ Envia para GitHub
 
 ---
 Desbloquear restrinção no MacOS
+1. Instalar o app
+2. Abrir terminal
+3. Execultar 
 ```text
-xattr -dr com.apple.quarantine "/Applications/SyncDB Desktop.app"
+sudo xattr -dr com.apple.quarantine "/Applications/SyncDB Desktop.app"
 open "/Applications/SyncDB Desktop.app"
 ```
 ---
