@@ -1,6 +1,6 @@
 {
   "name": "syncdb-desktop",
-  "version": "1.0.88",
+  "version": "1.0.89",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
