@@ -1,6 +1,6 @@
 {
-  "frontPath": "../app-sincdb",
-  "apiPath": "../api-sincdb",
+  "frontPath": "/Users/ramon/Documents/dev/app-sincdb",
+  "apiPath": "/Users/ramon/Documents/dev/api-sincdb",
   "angularDistPath": "dist/browser",
   "jarName": "syncdb.jar"
 }
