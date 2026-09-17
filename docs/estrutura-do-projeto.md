@@ -92,7 +92,7 @@ Responsabilidades:
 
 - criar uma `BrowserWindow`;
 - configurar `preload.js`;
-- iniciar um servidor HTTP interno em `127.0.0.1`;
+- iniciar um servidor HTTP interno em `localhost` (porta fixa `47832`);
 - carregar o `index.html` do Angular;
 - tratar fallback de SPA, enviando `index.html` quando a rota nao for um arquivo real;
 - bloquear `Ctrl+R`, `Cmd+R` e `F5` para recarregar sempre a URL base correta.
@@ -106,7 +106,7 @@ dist/browser/
 O servidor interno do Electron serve o Angular em origem fixa:
 
 ```text
-http://127.0.0.1:47832
+http://localhost:47832
 ```
 
 ### `back-end.js`

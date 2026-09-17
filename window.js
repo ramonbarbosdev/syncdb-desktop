@@ -1,9 +1,9 @@
-const { BrowserWindow } = require("electron");
+const { BrowserWindow, dialog } = require("electron");
 const path = require("path");
 const http = require("http");
 const fs = require("fs");
 
-const FRONTEND_HOST = "127.0.0.1";
+const FRONTEND_HOST = "localhost";
 const FRONTEND_PORT = 47832;
 
 let mainWindow;
@@ -94,12 +94,18 @@ function startFrontendServer(callback) {
 
   frontendServer.on("error", (err) => {
     if (err.code === "EADDRINUSE") {
-      console.error(
-        `[Frontend] Porta ${FRONTEND_PORT} em uso. Feche outra instância do SyncDB Desktop ou libere a porta.`
-      );
+      const message =
+        `A porta ${FRONTEND_PORT} já está em uso.\n\n` +
+        "Feche outra instância do SyncDB Desktop ou libere a porta e abra o app de novo.";
+      console.error(`[Frontend] ${message}`);
+      dialog.showErrorBox("SyncDB Desktop", message);
       return;
     }
     console.error("[Frontend] Erro no servidor HTTP interno:", err);
+    dialog.showErrorBox(
+      "SyncDB Desktop",
+      `Não foi possível iniciar o servidor do frontend: ${err.message}`
+    );
   });
 
   frontendServer.listen(FRONTEND_PORT, FRONTEND_HOST, () => {
