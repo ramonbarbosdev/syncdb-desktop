@@ -11,6 +11,7 @@
     "build:mac": "electron-builder --mac --arm64",
     "build:linux": "electron-builder --linux",
     "prepare:release": "node scripts/prepare-release.js",
+    "sync:icons": "node scripts/sync-app-icons.js",
     "release:win": "npm run prepare:release && electron-builder --win",
     "release:linux": "npm run prepare:release && electron-builder --linux",
     "release:mac": "npm run prepare:release && electron-builder --mac",
