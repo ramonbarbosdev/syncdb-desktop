@@ -60,17 +60,23 @@ async function syncAppIcons(desktopRoot, frontRoot) {
 
   fs.mkdirSync(assetsDir, { recursive: true });
 
+  const square256 = await squarePngBuffer(faviconPng, 256);
   const square512 = await squarePngBuffer(faviconPng, 512);
   const square1024 = await squarePngBuffer(faviconPng, 1024);
 
   const faviconIcoPublic = path.join(publicDir, 'favicon.ico');
   const faviconIcoAssets = path.join(assetsDir, 'icon.ico');
 
-  const pngToIco = (await import('png-to-ico')).default;
-  const icoBuffer = await pngToIco([square512]);
+  // forWinExe=true → ICO compatível com NSIS / electron-builder no Windows
+  const icoBuffer = png2icons.createICO(square256, png2icons.BILINEAR, 0, true, true);
+  if (!icoBuffer || icoBuffer.length === 0) {
+    throw new Error('Falha ao gerar icon.ico (formato Windows/NSIS)');
+  }
   fs.writeFileSync(faviconIcoAssets, icoBuffer);
   fs.copyFileSync(faviconIcoAssets, faviconIcoPublic);
-  console.log(`ICO gerado a partir de public/${FAVICON_PNG_NAME} (quadrado 512px)`);
+  console.log(
+    `ICO gerado (${icoBuffer.length} bytes) a partir de public/${FAVICON_PNG_NAME}`
+  );
 
   const iconPng = path.join(assetsDir, 'icon.png');
   fs.writeFileSync(iconPng, square512);
