@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, Menu } = require("electron");
 const treeKill = require("tree-kill");
+const { applyMacDockIcon } = require("./app-icon");
 
 const { startBackend, backendProcess } = require("./back-end");
 const { createWindow, getMainWindow, frontendServer } = require("./window");
@@ -39,6 +40,7 @@ ipcMain.handle("check-update-manual", () => {
 });
 
 app.whenReady().then(() => {
+  applyMacDockIcon();
   setupApplicationMenu();
 
   const mainWindow = createWindow({

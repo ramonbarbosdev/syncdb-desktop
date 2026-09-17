@@ -1,5 +1,6 @@
 const { BrowserWindow, dialog } = require("electron");
 const path = require("path");
+const { loadAppIconImage } = require("./app-icon");
 const http = require("http");
 const fs = require("fs");
 
@@ -13,10 +14,13 @@ let frontendBaseUrl;
 function createWindow(options = {}) {
   const { isQuittingCheck } = options;
 
+  const windowIcon = loadAppIconImage();
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     autoHideMenuBar: process.platform !== "darwin",
+    ...(windowIcon ? { icon: windowIcon } : {}),
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,

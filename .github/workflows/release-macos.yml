@@ -107,6 +107,12 @@ jobs:
           test -n "$ZIP_FILE" || (echo "ZIP do macOS nao encontrado" && exit 1)
           test -n "$DMG_FILE" || (echo "DMG do macOS nao encontrado" && exit 1)
 
+          APP_BUNDLE="$(find release -maxdepth 3 -name '*.app' | head -n 1)"
+          test -n "$APP_BUNDLE" || (echo ".app do macOS nao encontrado" && exit 1)
+          test -f "$APP_BUNDLE/Contents/Resources/icon.icns" \
+            || test -f "$APP_BUNDLE/Contents/Resources/electron.icns" \
+            || (echo "ICNS ausente no bundle do app" && exit 1)
+
       - name: Publish macOS release assets
         working-directory: syncdb-desktop
         env:

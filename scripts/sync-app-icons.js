@@ -1,3 +1,4 @@
+const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const sharp = require('sharp');
@@ -46,6 +47,40 @@ async function squarePngBuffer(inputPath, size) {
     .toBuffer();
 }
 
+function writeIcnsWithIconutil(desktopRoot, sourcePngPath, icnsPath) {
+  const iconsetDir = path.join(desktopRoot, '.icon-sync.iconset');
+  const master = path.join(iconsetDir, 'master.png');
+
+  if (fs.existsSync(iconsetDir)) {
+    fs.rmSync(iconsetDir, { recursive: true, force: true });
+  }
+  fs.mkdirSync(iconsetDir, { recursive: true });
+
+  execSync(`sips -z 1024 1024 "${sourcePngPath}" --out "${master}"`, { stdio: 'inherit' });
+
+  const sizes = [
+    ['icon_16x16.png', 16],
+    ['icon_16x16@2x.png', 32],
+    ['icon_32x32.png', 32],
+    ['icon_32x32@2x.png', 64],
+    ['icon_128x128.png', 128],
+    ['icon_128x128@2x.png', 256],
+    ['icon_256x256.png', 256],
+    ['icon_256x256@2x.png', 512],
+    ['icon_512x512.png', 512],
+    ['icon_512x512@2x.png', 1024],
+  ];
+
+  for (const [name, size] of sizes) {
+    execSync(`sips -z ${size} ${size} "${master}" --out "${path.join(iconsetDir, name)}"`, {
+      stdio: 'pipe',
+    });
+  }
+
+  execSync(`iconutil -c icns "${iconsetDir}" -o "${icnsPath}"`, { stdio: 'inherit' });
+  fs.rmSync(iconsetDir, { recursive: true, force: true });
+}
+
 /**
  * Ícones do Electron = public/favicon.png (funciona em macOS, Linux e Windows).
  */
@@ -61,13 +96,11 @@ async function syncAppIcons(desktopRoot, frontRoot) {
   fs.mkdirSync(assetsDir, { recursive: true });
 
   const square256 = await squarePngBuffer(faviconPng, 256);
-  const square512 = await squarePngBuffer(faviconPng, 512);
   const square1024 = await squarePngBuffer(faviconPng, 1024);
 
   const faviconIcoPublic = path.join(publicDir, 'favicon.ico');
   const faviconIcoAssets = path.join(assetsDir, 'icon.ico');
 
-  // forWinExe=true → ICO compatível com NSIS / electron-builder no Windows
   const icoBuffer = png2icons.createICO(square256, png2icons.BILINEAR, 0, true, true);
   if (!icoBuffer || icoBuffer.length === 0) {
     throw new Error('Falha ao gerar icon.ico (formato Windows/NSIS)');
@@ -79,16 +112,21 @@ async function syncAppIcons(desktopRoot, frontRoot) {
   );
 
   const iconPng = path.join(assetsDir, 'icon.png');
-  fs.writeFileSync(iconPng, square512);
-  console.log('assets/icon.png (512×512)');
+  fs.writeFileSync(iconPng, square1024);
+  console.log('assets/icon.png (1024×1024) — usado pelo electron-builder no macOS');
 
   const icnsPath = path.join(assetsDir, 'icon.icns');
-  const icnsBuffer = png2icons.createICNS(square1024, png2icons.BILINEAR, 0);
-  if (!icnsBuffer || icnsBuffer.length === 0) {
-    throw new Error('Falha ao gerar icon.icns a partir de favicon.png');
+  if (process.platform === 'darwin') {
+    writeIcnsWithIconutil(desktopRoot, iconPng, icnsPath);
+    console.log('assets/icon.icns gerado com iconutil (formato nativo macOS)');
+  } else {
+    const icnsBuffer = png2icons.createICNS(square1024, png2icons.BILINEAR, 0);
+    if (!icnsBuffer || icnsBuffer.length === 0) {
+      throw new Error('Falha ao gerar icon.icns a partir de favicon.png');
+    }
+    fs.writeFileSync(icnsPath, icnsBuffer);
+    console.log('assets/icon.icns gerado com png2icons (fallback fora do macOS)');
   }
-  fs.writeFileSync(icnsPath, icnsBuffer);
-  console.log('assets/icon.icns gerado a partir de public/favicon.png');
 }
 
 async function main() {

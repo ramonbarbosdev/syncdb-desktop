@@ -102,7 +102,7 @@
     },
     "mac": {
       "category": "public.app-category.utilities",
-      "icon": "assets/icon.icns",
+      "icon": "assets/icon.png",
       "target": [
         "dmg",
         "zip"
