@@ -1,7 +1,6 @@
 const { execSync } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const { syncAppIcons } = require('./sync-app-icons');
 
 const desktopRoot = path.resolve(__dirname, '..');
 const configPath = path.resolve(desktopRoot, 'build.config.json');
@@ -222,7 +221,10 @@ console.log('\nCopiando frontend para o Electron...');
 copyDir(angularDist, electronDist);
 
 console.log('\nSincronizando ícones (public/favicon.png → assets)...');
-syncAppIcons(desktopRoot, frontRoot);
+execSync(`node "${path.join(__dirname, 'sync-app-icons.js')}"`, {
+  cwd: desktopRoot,
+  stdio: 'inherit',
+});
 
 console.log('\nBuildando API Spring Boot...');
 run(getMavenCommand(apiRoot), apiRoot);
