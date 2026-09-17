@@ -3,19 +3,25 @@ const path = require("path");
 const http = require("http");
 const fs = require("fs");
 
+const FRONTEND_HOST = "127.0.0.1";
+const FRONTEND_PORT = 47832;
+
 let mainWindow;
 let frontendServer;
-let frontendBaseUrl; // guarda a URL raiz real
+let frontendBaseUrl;
 
-function createWindow() {
+function createWindow(options = {}) {
+  const { isQuittingCheck } = options;
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    autoHideMenuBar: process.platform !== "darwin",
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
-      preload: path.join(__dirname, "preload.js")
-    }
+      preload: path.join(__dirname, "preload.js"),
+    },
   });
 
   startFrontendServer((url) => {
@@ -23,12 +29,9 @@ function createWindow() {
     mainWindow.loadURL(url);
   });
 
-  // 🔴 INTERCEPTA CTRL+R / CMD+R / F5
   mainWindow.webContents.on("before-input-event", (event, input) => {
     const isReload =
-      (input.control || input.meta) &&
-      input.key.toLowerCase() === "r";
-
+      (input.control || input.meta) && input.key.toLowerCase() === "r";
     const isF5 = input.key === "F5";
 
     if (isReload || isF5) {
@@ -36,6 +39,13 @@ function createWindow() {
       if (frontendBaseUrl) {
         mainWindow.loadURL(frontendBaseUrl);
       }
+    }
+  });
+
+  mainWindow.on("close", (event) => {
+    if (typeof isQuittingCheck === "function" && !isQuittingCheck()) {
+      event.preventDefault();
+      mainWindow.hide();
     }
   });
 
@@ -50,21 +60,20 @@ function createWindow() {
   return mainWindow;
 }
 
-/**
- * Servidor HTTP interno com fallback SPA
- */
+function getMainWindow() {
+  return mainWindow;
+}
+
 function startFrontendServer(callback) {
   const frontendPath = path.join(__dirname, "dist", "browser");
 
   frontendServer = http.createServer((req, res) => {
     let filePath = path.join(frontendPath, req.url.split("?")[0]);
 
-    // raiz
     if (req.url === "/" || req.url === "") {
       filePath = path.join(frontendPath, "index.html");
     }
 
-    // fallback SPA
     if (!fs.existsSync(filePath)) {
       filePath = path.join(frontendPath, "index.html");
     }
@@ -77,15 +86,24 @@ function startFrontendServer(callback) {
       }
 
       res.writeHead(200, {
-        "Content-Type": getContentType(filePath)
+        "Content-Type": getContentType(filePath),
       });
       res.end(data);
     });
   });
 
-  frontendServer.listen(0, "127.0.0.1", () => {
-    const port = frontendServer.address().port;
-    callback(`http://localhost:${port}`);
+  frontendServer.on("error", (err) => {
+    if (err.code === "EADDRINUSE") {
+      console.error(
+        `[Frontend] Porta ${FRONTEND_PORT} em uso. Feche outra instância do SyncDB Desktop ou libere a porta.`
+      );
+      return;
+    }
+    console.error("[Frontend] Erro no servidor HTTP interno:", err);
+  });
+
+  frontendServer.listen(FRONTEND_PORT, FRONTEND_HOST, () => {
+    callback(`http://${FRONTEND_HOST}:${FRONTEND_PORT}`);
   });
 }
 
@@ -103,14 +121,16 @@ function getContentType(filePath) {
       ".svg": "image/svg+xml",
       ".woff": "font/woff",
       ".woff2": "font/woff2",
-      ".ttf": "font/ttf"
+      ".ttf": "font/ttf",
     }[ext] || "application/octet-stream"
   );
 }
 
 module.exports = {
   createWindow,
+  getMainWindow,
+  FRONTEND_PORT,
   get frontendServer() {
     return frontendServer;
-  }
+  },
 };

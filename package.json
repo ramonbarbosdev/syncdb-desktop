@@ -61,12 +61,27 @@
       "tray.js",
       "back-end.js",
       "preload.js",
-      "dist/browser/**/*"
+      "dist/browser/**/*",
+      "assets/icon.ico",
+      "assets/icon.png",
+      "assets/icon.icns"
     ],
     "extraResources": [
       {
         "from": "backend/syncdb.jar",
         "to": "backend/syncdb.jar"
+      },
+      {
+        "from": "assets/icon.ico",
+        "to": "assets/icon.ico"
+      },
+      {
+        "from": "assets/icon.png",
+        "to": "assets/icon.png"
+      },
+      {
+        "from": "assets/icon.icns",
+        "to": "assets/icon.icns"
       }
     ],
     "directories": {

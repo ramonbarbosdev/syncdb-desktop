@@ -46,9 +46,10 @@ function startBackend(onReadyCallback) {
     const text = data.toString();
     console.log(`Backend stdout: ${text}`);
     if (text.includes("Started") && text.includes("Tomcat")) {
-      // backend pronto: carregar a janela
-       console.log("Backend iniciado com sucesso!");
-      createWindow();
+      console.log("Backend iniciado com sucesso!");
+      if (typeof onReadyCallback === "function") {
+        onReadyCallback();
+      }
     }
   });
 

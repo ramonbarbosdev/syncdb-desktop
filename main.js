@@ -1,24 +1,37 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
-const path = require("path");
+const { app, BrowserWindow, ipcMain, Menu } = require("electron");
 const treeKill = require("tree-kill");
 
 const { startBackend, backendProcess } = require("./back-end");
-const { createWindow, frontendServer } = require("./window");
+const { createWindow, getMainWindow, frontendServer } = require("./window");
+const { setupTray, destroyTray } = require("./tray");
 const {
   setupAutoUpdater,
   startDownload,
   installUpdate,
   checkForUpdatesManual,
-  openLatestRelease
+  openLatestRelease,
 } = require("./updater");
 
-const isDev = !app.isPackaged;
+let isQuitting = false;
 
-const startUrl = isDev
-  ? "http://localhost:4200"
-  : `file://${path.join(__dirname, "../dist/index.html")}`;
+function setupApplicationMenu() {
+  if (process.platform === "darwin") {
+    Menu.setApplicationMenu(
+      Menu.buildFromTemplate([
+        { role: "appMenu" },
+        { role: "editMenu" },
+      ])
+    );
+    return;
+  }
 
-let mainWindow;
+  Menu.setApplicationMenu(null);
+}
+
+function quitApplication() {
+  isQuitting = true;
+  app.quit();
+}
 
 // IPC para check manual
 ipcMain.handle("check-update-manual", () => {
@@ -26,14 +39,20 @@ ipcMain.handle("check-update-manual", () => {
 });
 
 app.whenReady().then(() => {
+  setupApplicationMenu();
 
-  mainWindow = createWindow(startUrl);
+  const mainWindow = createWindow({
+    isQuittingCheck: () => isQuitting,
+  });
+
+  setupTray({
+    getWindow: getMainWindow,
+    quitApp: quitApplication,
+  }).catch((err) => console.error("[Tray] Erro ao inicializar:", err));
 
   setupAutoUpdater(mainWindow);
 
-  startBackend(() => {
-    createWindow();
-  });
+  startBackend();
 });
 
 // IPC do updater
@@ -50,7 +69,10 @@ ipcMain.handle("updater:open-latest-release", () => {
 });
 
 app.on("before-quit", () => {
+  isQuitting = true;
   console.log("Aplicação encerrando...");
+
+  destroyTray();
 
   if (backendProcess && !backendProcess.killed) {
     console.log("Encerrando backend...");
@@ -71,14 +93,23 @@ app.on("before-quit", () => {
 });
 
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
+  if (isQuitting && process.platform !== "darwin") {
     app.quit();
   }
 });
 
 app.on("activate", () => {
+  const mainWindow = getMainWindow();
+  if (mainWindow && !mainWindow.isDestroyed()) {
+    mainWindow.show();
+    mainWindow.focus();
+    return;
+  }
+
   if (BrowserWindow.getAllWindows().length === 0) {
-    mainWindow = createWindow(startUrl);
-    setupAutoUpdater(mainWindow);
+    const win = createWindow({
+      isQuittingCheck: () => isQuitting,
+    });
+    setupAutoUpdater(win);
   }
 });

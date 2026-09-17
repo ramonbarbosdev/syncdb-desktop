@@ -100,7 +100,13 @@ Responsabilidades:
 O frontend esperado fica em:
 
 ```text
-dist/browser/browser/
+dist/browser/
+```
+
+O servidor interno do Electron serve o Angular em origem fixa:
+
+```text
+http://127.0.0.1:47832
 ```
 
 ### `back-end.js`
