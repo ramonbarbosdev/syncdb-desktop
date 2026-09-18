@@ -61,6 +61,7 @@
       "updater.js",
       "src/electron/updater/**/*",
       "window.js",
+      "app-icon.js",
       "tray.js",
       "back-end.js",
       "preload.js",
