@@ -15,6 +15,24 @@ const {
 
 let isQuitting = false;
 
+const hasSingleInstanceLock = app.requestSingleInstanceLock();
+
+if (!hasSingleInstanceLock) {
+  app.quit();
+}
+
+function focusExistingWindow() {
+  const win = getMainWindow();
+  if (!win || win.isDestroyed()) {
+    return;
+  }
+  if (win.isMinimized()) {
+    win.restore();
+  }
+  win.show();
+  win.focus();
+}
+
 function setupApplicationMenu() {
   if (process.platform === "darwin") {
     Menu.setApplicationMenu(
@@ -39,23 +57,29 @@ ipcMain.handle("check-update-manual", () => {
   checkForUpdatesManual();
 });
 
-app.whenReady().then(() => {
-  applyMacDockIcon();
-  setupApplicationMenu();
-
-  const mainWindow = createWindow({
-    isQuittingCheck: () => isQuitting,
+if (hasSingleInstanceLock) {
+  app.on("second-instance", () => {
+    focusExistingWindow();
   });
 
-  setupTray({
-    getWindow: getMainWindow,
-    quitApp: quitApplication,
-  }).catch((err) => console.error("[Tray] Erro ao inicializar:", err));
+  app.whenReady().then(() => {
+    applyMacDockIcon();
+    setupApplicationMenu();
 
-  setupAutoUpdater(mainWindow);
+    const mainWindow = createWindow({
+      isQuittingCheck: () => isQuitting,
+    });
 
-  startBackend();
-});
+    setupTray({
+      getWindow: getMainWindow,
+      quitApp: quitApplication,
+    }).catch((err) => console.error("[Tray] Erro ao inicializar:", err));
+
+    setupAutoUpdater(mainWindow);
+
+    startBackend();
+  });
+}
 
 // IPC do updater
 ipcMain.handle("start-update-download", () => {
@@ -103,8 +127,11 @@ app.on("window-all-closed", () => {
 app.on("activate", () => {
   const mainWindow = getMainWindow();
   if (mainWindow && !mainWindow.isDestroyed()) {
-    mainWindow.show();
-    mainWindow.focus();
+    focusExistingWindow();
+    return;
+  }
+
+  if (!hasSingleInstanceLock) {
     return;
   }
 
