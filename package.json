@@ -63,6 +63,7 @@
       "window.js",
       "app-icon.js",
       "tray.js",
+      "notifications.js",
       "back-end.js",
       "preload.js",
       "dist/browser/**/*",

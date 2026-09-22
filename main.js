@@ -5,6 +5,7 @@ const { applyMacDockIcon } = require("./app-icon");
 const { startBackend, backendProcess } = require("./back-end");
 const { createWindow, getMainWindow, frontendServer } = require("./window");
 const { setupTray, destroyTray } = require("./tray");
+const { registerNotificationHandlers } = require("./notifications");
 const {
   setupAutoUpdater,
   startDownload,
@@ -51,6 +52,8 @@ function quitApplication() {
   isQuitting = true;
   app.quit();
 }
+
+registerNotificationHandlers(ipcMain, { focusWindow: focusExistingWindow });
 
 // IPC para check manual
 ipcMain.handle("check-update-manual", () => {

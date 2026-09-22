@@ -1,5 +1,10 @@
 const { contextBridge, ipcRenderer } = require("electron");
 
+contextBridge.exposeInMainWorld("desktop", {
+  showNotification: (payload) =>
+    ipcRenderer.invoke("desktop:show-notification", payload),
+});
+
 contextBridge.exposeInMainWorld("updater", {
   onUpdateAvailable: (cb) =>
     ipcRenderer.on("update-available", (_, data) => cb(data)),
