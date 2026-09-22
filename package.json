@@ -45,7 +45,7 @@
     "tree-kill": "^1.2.2"
   },
   "build": {
-    "appId": "com.suaempresa.syncdb",
+    "appId": "com.ramoncode.syncdb",
     "productName": "SyncDB Desktop",
     "publish": [
       {
@@ -95,6 +95,7 @@
     },
     "win": {
       "target": "nsis",
+      "appUserModelId": "com.ramoncode.syncdb",
       "icon": "assets/icon",
       "extraResources": [
         {

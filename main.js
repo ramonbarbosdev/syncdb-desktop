@@ -1,6 +1,19 @@
 const { app, BrowserWindow, ipcMain, Menu } = require("electron");
 const treeKill = require("tree-kill");
+const packageJson = require("./package.json");
 const { applyMacDockIcon } = require("./app-icon");
+
+const APP_USER_MODEL_ID =
+  packageJson.build?.appId || "com.ramoncode.syncdb";
+const PRODUCT_NAME = packageJson.build?.productName || "SyncDB Desktop";
+
+if (typeof app.setName === "function") {
+  app.setName(PRODUCT_NAME);
+}
+
+if (process.platform === "win32") {
+  app.setAppUserModelId(APP_USER_MODEL_ID);
+}
 
 const { startBackend, backendProcess } = require("./back-end");
 const { createWindow, getMainWindow, frontendServer } = require("./window");
