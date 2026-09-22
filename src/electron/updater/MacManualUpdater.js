@@ -11,10 +11,10 @@ class MacManualUpdater extends UpdateService {
     super.setup(mainWindow);
     console.log("[Updater] Inicializando");
     console.log(`[Updater] Plataforma: ${process.platform}`);
-    this.checkForUpdatesManual();
+    this.checkForUpdatesManual(false);
   }
 
-  checkForUpdatesManual() {
+  checkForUpdatesManual(notifyIfUpToDate = true) {
     console.log("[Updater] Consultando GitHub Releases");
 
     return this.fetchLatestRelease()
@@ -29,17 +29,27 @@ class MacManualUpdater extends UpdateService {
         if (!latestVersion || !isNewerVersion(currentVersion, latestVersion)) {
           this.updateAvailable = false;
           console.log("[Updater] Aplicação já está atualizada");
+          if (notifyIfUpToDate) {
+            this.sendToRenderer("update-not-available");
+          }
           return;
         }
 
         this.updateAvailable = true;
         console.log("[Updater] Atualização disponível");
 
-        this.sendToRenderer("manual-update-available", {
+        const payload = {
           currentVersion,
           latestVersion,
+          version: latestVersion,
+          availableVersion: latestVersion,
           releaseUrl,
-        });
+          platform: process.platform,
+          mode: "manual-release",
+        };
+
+        this.sendToRenderer("manual-update-available", payload);
+        this.sendToRenderer("update-available", payload);
       })
       .catch((err) => {
         console.error("[Updater] Erro ao consultar GitHub Releases:", err);

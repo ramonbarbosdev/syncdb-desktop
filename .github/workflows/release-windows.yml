@@ -80,3 +80,18 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx electron-builder --win --publish always
+
+      - name: Verificar artefatos do updater (Windows)
+        working-directory: syncdb-desktop
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "release/latest.yml")) {
+            Write-Error "latest.yml nao foi gerado em release/ — auto-updater do Windows ficara quebrado."
+            exit 1
+          }
+          $installer = Get-ChildItem -Path "release" -Filter "*.exe" -File | Select-Object -First 1
+          if (-not $installer) {
+            Write-Error "Nenhum instalador .exe encontrado em release/."
+            exit 1
+          }
+          Write-Host "Artefatos do updater OK: latest.yml e $($installer.Name)"

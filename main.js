@@ -12,6 +12,7 @@ const {
   installUpdate,
   checkForUpdatesManual,
   openLatestRelease,
+  schedulePeriodicUpdateChecks,
 } = require("./updater");
 
 let isQuitting = false;
@@ -79,6 +80,7 @@ if (hasSingleInstanceLock) {
     }).catch((err) => console.error("[Tray] Erro ao inicializar:", err));
 
     setupAutoUpdater(mainWindow);
+    schedulePeriodicUpdateChecks();
 
     startBackend();
   });

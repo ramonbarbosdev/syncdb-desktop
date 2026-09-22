@@ -24,6 +24,7 @@
     "release:patch:mac": "npm run version:patch && npm run release:mac",
     "release:minor:mac": "npm run version:minor && npm run release:mac",
     "release:major:mac": "npm run version:major && npm run release:mac",
+    "release:beta:win": "npm version prerelease --preid=beta --no-git-tag-version && npm run release:win",
     "release:publish": "node scripts/release.js"
   },
   "author": "Ramon Barbosa",

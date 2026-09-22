@@ -81,3 +81,16 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx electron-builder --linux --publish always
+
+      - name: Verificar artefatos do updater (Linux)
+        working-directory: syncdb-desktop
+        run: |
+          if [ ! -f "release/latest-linux.yml" ] && [ ! -f "release/latest.yml" ]; then
+            echo "::error::latest-linux.yml (ou latest.yml) nao foi gerado em release/."
+            exit 1
+          fi
+          if ! ls release/*.AppImage 1>/dev/null 2>&1; then
+            echo "::error::Nenhum AppImage encontrado em release/."
+            exit 1
+          fi
+          echo "Artefatos do updater Linux OK."

@@ -290,19 +290,35 @@ Disponibilização para atualização automática
 
 O SyncDB Desktop utiliza Electron Updater integrado ao GitHub Releases.
 
-Quando uma nova versão é publicada:
+Quando uma nova versão é publicada (Windows/Linux):
 
 ```text
-Usuário abre o sistema
+Usuário abre o sistema (ou checagem a cada 8h)
 ↓
-Nova versão encontrada
+Nova versão encontrada → diálogo no app
 ↓
-Download automático
+Usuário confirma "Baixar atualização"
 ↓
-Instalação
+Instalação ao clicar "Instalar agora" (ou ao sair, se configurado)
 ```
 
-Nenhuma ação manual é necessária pelo usuário.
+No macOS a instalação continua manual pela página do GitHub Releases.
+
+### Canal beta (testadores)
+
+Defina no ambiente do app instalado:
+
+```text
+SYNCDB_UPDATE_CHANNEL=beta
+```
+
+Somente builds com essa variável recebem pré-releases do GitHub. Produção não deve definir essa variável.
+
+Script local de exemplo:
+
+```bash
+npm run release:beta:win
+```
 
 ---
 

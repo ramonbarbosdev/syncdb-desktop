@@ -11,6 +11,13 @@ class ElectronAutoUpdaterService extends UpdateService {
     this.updateChecked = false;
   }
 
+  configureAutoUpdater() {
+    this.autoUpdater.autoDownload = false;
+    this.autoUpdater.autoInstallOnAppQuit = true;
+    this.autoUpdater.allowPrerelease =
+      process.env.SYNCDB_UPDATE_CHANNEL === "beta";
+  }
+
   setup(mainWindow) {
     super.setup(mainWindow);
     console.log("[Updater] Inicializando");
@@ -26,8 +33,7 @@ class ElectronAutoUpdaterService extends UpdateService {
     }
 
     this.updaterConfigured = true;
-    this.autoUpdater.autoDownload = true;
-    this.autoUpdater.autoInstallOnAppQuit = true;
+    this.configureAutoUpdater();
 
     this.autoUpdater.on("update-available", (info) => {
       this.updateChecked = true;
@@ -36,10 +42,11 @@ class ElectronAutoUpdaterService extends UpdateService {
 
       this.sendToRenderer("update-available", {
         platform: process.platform,
-        mode: "automatic",
+        mode: "manual-download",
         releasesUrl: RELEASES_URL,
         currentVersion: this.getCurrentVersion(),
         version: info.version,
+        availableVersion: info.version,
       });
     });
 
@@ -47,6 +54,7 @@ class ElectronAutoUpdaterService extends UpdateService {
       console.log("[Updater] Aplicação já está atualizada");
       this.updateChecked = true;
       this.updateAvailable = false;
+      this.sendToRenderer("update-not-available");
     });
 
     this.autoUpdater.on("download-progress", (progress) => {
@@ -67,7 +75,7 @@ class ElectronAutoUpdaterService extends UpdateService {
       this.sendToRenderer("update-error", err.message);
     });
 
-    this.autoUpdater.checkForUpdatesAndNotify();
+    this.autoUpdater.checkForUpdates();
   }
 
   checkForUpdatesManual() {
@@ -78,7 +86,7 @@ class ElectronAutoUpdaterService extends UpdateService {
 
     console.log("[Updater] Check manual de atualização solicitado");
     this.updateChecked = false;
-    return this.autoUpdater.checkForUpdatesAndNotify();
+    return this.autoUpdater.checkForUpdates();
   }
 
   startDownload() {
@@ -87,15 +95,19 @@ class ElectronAutoUpdaterService extends UpdateService {
       return undefined;
     }
 
+    const download = () =>
+      this.autoUpdater.downloadUpdate().catch((err) => {
+        console.error("[Updater] Erro ao baixar atualização:", err);
+        this.sendToRenderer("update-error", err.message);
+      });
+
     if (!this.updateChecked) {
-      console.warn("[Updater] Update ainda não foi verificado. Aguarde o check.");
-      return undefined;
+      return this.autoUpdater
+        .checkForUpdates()
+        .then(() => download());
     }
 
-    return this.autoUpdater.downloadUpdate().catch((err) => {
-      console.error("[Updater] Erro ao baixar atualização:", err);
-      this.sendToRenderer("update-error", err.message);
-    });
+    return download();
   }
 
   installUpdate() {
@@ -104,7 +116,15 @@ class ElectronAutoUpdaterService extends UpdateService {
       return undefined;
     }
 
-    return this.autoUpdater.quitAndInstall(false, true);
+    try {
+      this.autoUpdater.quitAndInstall(false, true);
+    } catch (err) {
+      console.error("[Updater] Erro ao instalar atualização:", err);
+      this.sendToRenderer("update-install-failed", {
+        message: err?.message ?? String(err),
+        fallbackUrl: RELEASES_URL,
+      });
+    }
   }
 }
 
