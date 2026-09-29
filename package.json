@@ -1,6 +1,6 @@
 {
   "name": "syncdb-desktop",
-  "version": "1.2.21",
+  "version": "1.2.22",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -59,6 +59,7 @@
     "files": [
       "package.json",
       "main.js",
+      "ports.js",
       "updater.js",
       "src/electron/updater/**/*",
       "window.js",
