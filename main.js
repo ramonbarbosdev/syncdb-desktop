@@ -15,7 +15,7 @@ if (process.platform === "win32") {
   app.setAppUserModelId(APP_USER_MODEL_ID);
 }
 
-const { startBackend, backendProcess } = require("./back-end");
+const { startBackend, getBackendProcess } = require("./back-end");
 const { createWindow, getMainWindow, frontendServer } = require("./window");
 const { setupTray, destroyTray } = require("./tray");
 const { registerNotificationHandlers } = require("./notifications");
@@ -118,6 +118,7 @@ app.on("before-quit", () => {
 
   destroyTray();
 
+  const backendProcess = getBackendProcess();
   if (backendProcess && !backendProcess.killed) {
     console.log("Encerrando backend...");
     treeKill(backendProcess.pid, "SIGTERM", (err) => {

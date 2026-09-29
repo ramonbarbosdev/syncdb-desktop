@@ -4,8 +4,9 @@ const { loadAppIconImage } = require("./app-icon");
 const http = require("http");
 const fs = require("fs");
 
-const FRONTEND_HOST = "localhost";
-const FRONTEND_PORT = 47832;
+const { FRONTEND_PORT } = require("./ports");
+
+const FRONTEND_HOST = "127.0.0.1";
 
 let mainWindow;
 let frontendServer;

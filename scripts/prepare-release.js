@@ -210,7 +210,7 @@ existsOrFail(apiRoot, 'Projeto API nao encontrado.');
 
 console.log('\nBuildando frontend Angular...');
 run(getNpmInstallCommand(frontRoot), frontRoot);
-run('npm run build -- --configuration production --base-href ./', frontRoot);
+run('npm run build -- --configuration desktop --base-href ./', frontRoot);
 
 existsOrFail(angularDist, 'Build do Angular nao encontrado.');
 

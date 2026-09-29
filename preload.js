@@ -1,8 +1,16 @@
 const { contextBridge, ipcRenderer } = require("electron");
+const {
+  BACKEND_PORT,
+  backendApiBaseUrl,
+  backendWebSocketUrl,
+} = require("./ports");
 
 contextBridge.exposeInMainWorld("platform", process.platform);
 
 contextBridge.exposeInMainWorld("desktop", {
+  backendPort: BACKEND_PORT,
+  apiBaseUrl: backendApiBaseUrl(),
+  apiWebSocketUrl: backendWebSocketUrl(),
   showNotification: (payload) =>
     ipcRenderer.invoke("desktop:show-notification", payload),
 });
