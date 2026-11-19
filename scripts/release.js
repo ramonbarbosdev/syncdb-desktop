@@ -21,7 +21,20 @@ const packageJson = JSON.parse(
 const version = packageJson.version;
 const tag = `v${version}`;
 
+const platformArgs = process.argv
+  .slice(2)
+  .map((value) => value.replace(/^\[|\]$/g, "").toLowerCase())
+  .filter((value) => ["win", "mac", "linux"].includes(value));
+const releasePlatforms = [...new Set(platformArgs)];
+const platformSuffix =
+  releasePlatforms.length > 0
+    ? ` ${releasePlatforms.map((platform) => `[${platform}]`).join(" ")}`
+    : "";
+
 console.log(`\nCriando release ${tag}`);
+if (releasePlatforms.length > 0) {
+  console.log(`Plataformas: ${releasePlatforms.join(", ")}`);
+}
 
 try {
   output(`git rev-parse ${tag}`);
@@ -46,7 +59,9 @@ const hasStagedChanges = (() => {
 })();
 
 if (hasStagedChanges) {
-  run(`git commit -m "release: ${tag}"`);
+  run(`git commit -m "release: ${tag}${platformSuffix}"`);
+} else if (platformSuffix) {
+  run(`git commit --allow-empty -m "release: ${tag}${platformSuffix}"`);
 } else {
   console.log("Nenhuma mudanca de versao para commitar.");
 }

@@ -9,7 +9,29 @@ permissions:
   contents: write
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      should_run: ${{ steps.platform.outputs.should_run }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - id: platform
+        shell: bash
+        run: |
+          MSG="$(git log -1 --format=%B)"
+          if echo "$MSG" | grep -qi '\[linux\]'; then
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          elif echo "$MSG" | grep -qiE '\[(win|mac|linux)\]'; then
+            echo "should_run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "should_run=true" >> "$GITHUB_OUTPUT"
+          fi
+
   release-linux:
+    needs: check
+    if: needs.check.outputs.should_run == 'true'
     runs-on: ubuntu-latest
 
     steps:

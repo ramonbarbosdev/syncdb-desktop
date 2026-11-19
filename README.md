@@ -239,6 +239,23 @@ Após validação:
 npm run release:publish
 ```
 
+Publicar só algumas plataformas (o Actions lê `[win]`, `[mac]` e `[linux]` na mensagem do commit de release):
+
+```bash
+npm run release:publish -- win
+npm run release:publish -- win linux
+npm run release:publish -- mac
+```
+
+Ou inclua os marcadores manualmente no commit, por exemplo: `release: v1.2.27 [win] [linux]`.
+
+Regras no GitHub Actions:
+
+| Mensagem do commit | O que roda |
+| --- | --- |
+| Sem `[win]`, `[mac]` ou `[linux]` | Windows, macOS e Linux |
+| Com um ou mais marcadores | Só as plataformas indicadas |
+
 Esse comando:
 
 ```text
@@ -262,13 +279,7 @@ open "/Applications/SyncDB Desktop.app"
 
 # Publicação Automática
 
-Ao enviar uma tag:
-
-```text
-v1.0.67
-```
-
-o GitHub Actions inicia automaticamente.
+Ao enviar uma tag `v*`, o GitHub Actions inicia automaticamente e usa a mensagem do commit apontado pela tag para decidir quais builds executar (`[win]`, `[mac]`, `[linux]`).
 
 Fluxo:
 
