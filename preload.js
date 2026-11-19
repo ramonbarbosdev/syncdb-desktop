@@ -5,6 +5,30 @@ const {
   backendWebSocketUrl,
 } = require("./ports");
 
+const updateChannelBuffer = new Map();
+const UPDATE_CHANNELS = [
+  "update-available",
+  "manual-update-available",
+  "update-not-available",
+  "update-progress",
+  "update-downloaded",
+  "update-error",
+  "update-install-failed",
+];
+
+for (const channel of UPDATE_CHANNELS) {
+  ipcRenderer.on(channel, (_, payload) => {
+    updateChannelBuffer.set(channel, payload);
+  });
+}
+
+function subscribeUpdateChannel(channel, callback) {
+  ipcRenderer.on(channel, (_, payload) => callback(payload));
+  if (updateChannelBuffer.has(channel)) {
+    callback(updateChannelBuffer.get(channel));
+  }
+}
+
 contextBridge.exposeInMainWorld("platform", process.platform);
 
 contextBridge.exposeInMainWorld("desktop", {
@@ -17,26 +41,21 @@ contextBridge.exposeInMainWorld("desktop", {
 });
 
 contextBridge.exposeInMainWorld("updater", {
-  onUpdateAvailable: (cb) =>
-    ipcRenderer.on("update-available", (_, data) => cb(data)),
+  onUpdateAvailable: (cb) => subscribeUpdateChannel("update-available", cb),
 
   onManualUpdateAvailable: (cb) =>
-    ipcRenderer.on("manual-update-available", (_, data) => cb(data)),
+    subscribeUpdateChannel("manual-update-available", cb),
 
   onUpdateNotAvailable: (cb) =>
-    ipcRenderer.on("update-not-available", () => cb()),
+    subscribeUpdateChannel("update-not-available", () => cb()),
 
-  onProgress: (cb) =>
-    ipcRenderer.on("update-progress", (_, data) => cb(data)),
+  onProgress: (cb) => subscribeUpdateChannel("update-progress", cb),
 
-  onDownloaded: (cb) =>
-    ipcRenderer.on("update-downloaded", cb),
+  onDownloaded: (cb) => subscribeUpdateChannel("update-downloaded", () => cb()),
 
-  onError: (cb) =>
-    ipcRenderer.on("update-error", (_, message) => cb(message)),
+  onError: (cb) => subscribeUpdateChannel("update-error", cb),
 
-  onInstallFailed: (cb) =>
-    ipcRenderer.on("update-install-failed", (_, data) => cb(data)),
+  onInstallFailed: (cb) => subscribeUpdateChannel("update-install-failed", cb),
 
   startDownload: () => ipcRenderer.invoke("start-update-download"),
 
@@ -45,4 +64,6 @@ contextBridge.exposeInMainWorld("updater", {
   openLatestRelease: () => ipcRenderer.invoke("updater:open-latest-release"),
 
   checkForUpdates: () => ipcRenderer.invoke("check-update-manual"),
+
+  notifyRendererReady: () => ipcRenderer.invoke("updater:renderer-ready"),
 });

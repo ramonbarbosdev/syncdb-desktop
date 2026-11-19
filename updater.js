@@ -14,6 +14,7 @@ module.exports = {
   installUpdate: () => updateService.installUpdate(),
   checkForUpdatesManual: () => updateService.checkForUpdatesManual(),
   openLatestRelease: () => updateService.openLatestRelease(),
+  markUpdaterRendererReady: () => updateService.markRendererReady(),
   schedulePeriodicUpdateChecks: () =>
     scheduleUpdateChecks(app, () => updateService.checkForUpdatesManual()),
 };

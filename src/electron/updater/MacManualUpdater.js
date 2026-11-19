@@ -11,7 +11,9 @@ class MacManualUpdater extends UpdateService {
     super.setup(mainWindow);
     console.log("[Updater] Inicializando");
     console.log(`[Updater] Plataforma: ${process.platform}`);
-    this.checkForUpdatesManual(false);
+    this.scheduleInitialCheck(() => {
+      this.checkForUpdatesManual(false);
+    });
   }
 
   checkForUpdatesManual(notifyIfUpToDate = true) {

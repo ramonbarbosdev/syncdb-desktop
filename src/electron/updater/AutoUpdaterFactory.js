@@ -12,6 +12,10 @@ class ElectronAutoUpdaterService extends UpdateService {
   }
 
   configureAutoUpdater() {
+    const log = require("electron-log");
+    log.transports.file.level = "info";
+    this.autoUpdater.logger = log;
+
     this.autoUpdater.autoDownload = false;
     this.autoUpdater.autoInstallOnAppQuit = true;
     this.autoUpdater.allowPrerelease =
@@ -75,7 +79,9 @@ class ElectronAutoUpdaterService extends UpdateService {
       this.sendToRenderer("update-error", err.message);
     });
 
-    this.autoUpdater.checkForUpdates();
+    this.scheduleInitialCheck(() => {
+      this.autoUpdater.checkForUpdates();
+    });
   }
 
   checkForUpdatesManual() {
