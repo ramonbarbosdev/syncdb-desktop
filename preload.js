@@ -30,19 +30,7 @@ function subscribeUpdateChannel(channel, callback) {
   }
 }
 
-contextBridge.exposeInMainWorld("platform", process.platform);
-
-contextBridge.exposeInMainWorld("desktop", {
-  appVersion: packageJson.version,
-  backendPort: BACKEND_PORT,
-  apiBaseUrl: backendApiBaseUrl(),
-  apiWebSocketUrl: backendWebSocketUrl(),
-  showNotification: (payload) =>
-    ipcRenderer.invoke("desktop:show-notification", payload),
-  openLatestRelease: () => ipcRenderer.invoke("updater:open-latest-release"),
-});
-
-contextBridge.exposeInMainWorld("updater", {
+const updaterBridge = {
   onUpdateAvailable: (cb) => subscribeUpdateChannel("update-available", cb),
 
   onManualUpdateAvailable: (cb) =>
@@ -68,4 +56,19 @@ contextBridge.exposeInMainWorld("updater", {
   checkForUpdates: () => ipcRenderer.invoke("check-update-manual"),
 
   notifyRendererReady: () => ipcRenderer.invoke("updater:renderer-ready"),
+};
+
+contextBridge.exposeInMainWorld("platform", process.platform);
+
+contextBridge.exposeInMainWorld("desktop", {
+  appVersion: packageJson.version,
+  backendPort: BACKEND_PORT,
+  apiBaseUrl: backendApiBaseUrl(),
+  apiWebSocketUrl: backendWebSocketUrl(),
+  showNotification: (payload) =>
+    ipcRenderer.invoke("desktop:show-notification", payload),
+  openLatestRelease: () => ipcRenderer.invoke("updater:open-latest-release"),
+  ...updaterBridge,
 });
+
+contextBridge.exposeInMainWorld("updater", updaterBridge);

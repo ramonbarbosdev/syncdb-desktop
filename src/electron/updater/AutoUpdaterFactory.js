@@ -1,5 +1,6 @@
 const { RELEASES_URL, UpdateService } = require("./UpdateService");
 const { MacManualUpdater } = require("./MacManualUpdater");
+const { notifyIfUpdateAvailable } = require("./GithubReleaseNotifier");
 
 class ElectronAutoUpdaterService extends UpdateService {
   constructor(dependencies) {
@@ -20,6 +21,25 @@ class ElectronAutoUpdaterService extends UpdateService {
     this.autoUpdater.autoInstallOnAppQuit = true;
     this.autoUpdater.allowPrerelease =
       process.env.SYNCDB_UPDATE_CHANNEL === "beta";
+
+    log.info("[Updater] Versão instalada:", this.getCurrentVersion());
+    log.info("[Updater] isPackaged:", this.app.isPackaged);
+  }
+
+  checkViaGithub(notifyIfUpToDate = false) {
+    return notifyIfUpdateAvailable(this, notifyIfUpToDate).catch((err) => {
+      console.error("[Updater] Falha na checagem via GitHub:", err);
+      this.sendToRenderer("update-error", err.message);
+      return null;
+    });
+  }
+
+  runInitialCheck() {
+    this.checkViaGithub(false).finally(() => {
+      this.autoUpdater.checkForUpdates().catch((err) => {
+        console.error("[Updater] Falha na checagem electron-updater:", err);
+      });
+    });
   }
 
   setup(mainWindow) {
@@ -80,7 +100,7 @@ class ElectronAutoUpdaterService extends UpdateService {
     });
 
     this.scheduleInitialCheck(() => {
-      this.autoUpdater.checkForUpdates();
+      this.runInitialCheck();
     });
   }
 
@@ -92,7 +112,11 @@ class ElectronAutoUpdaterService extends UpdateService {
 
     console.log("[Updater] Check manual de atualização solicitado");
     this.updateChecked = false;
-    return this.autoUpdater.checkForUpdates();
+    return this.checkViaGithub(true).finally(() =>
+      this.autoUpdater.checkForUpdates().catch((err) => {
+        console.error("[Updater] Falha na checagem electron-updater:", err);
+      })
+    );
   }
 
   startDownload() {
