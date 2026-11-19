@@ -1,4 +1,4 @@
-const { BrowserWindow, dialog } = require("electron");
+const { BrowserWindow, dialog, app } = require("electron");
 const path = require("path");
 const { loadAppIconImage } = require("./app-icon");
 const http = require("http");
@@ -11,6 +11,21 @@ const FRONTEND_HOST = "127.0.0.1";
 let mainWindow;
 let frontendServer;
 let frontendBaseUrl;
+
+function devToolsShortcutsEnabled() {
+  if (!app.isPackaged) {
+    return true;
+  }
+  return process.env.SYNCDB_DEVTOOLS === "1";
+}
+
+function toggleDevTools(webContents) {
+  if (webContents.isDevToolsOpened()) {
+    webContents.closeDevTools();
+  } else {
+    webContents.openDevTools({ mode: "detach" });
+  }
+}
 
 function createWindow(options = {}) {
   const { isQuittingCheck } = options;
@@ -35,6 +50,21 @@ function createWindow(options = {}) {
   });
 
   mainWindow.webContents.on("before-input-event", (event, input) => {
+    if (devToolsShortcutsEnabled()) {
+      const key = String(input.key || "").toLowerCase();
+      const isDevToolsKey =
+        input.key === "F12" ||
+        ((input.control || input.meta) &&
+          input.shift &&
+          (key === "i" || key === "d"));
+
+      if (isDevToolsKey) {
+        event.preventDefault();
+        toggleDevTools(mainWindow.webContents);
+        return;
+      }
+    }
+
     const isReload =
       (input.control || input.meta) && input.key.toLowerCase() === "r";
     const isF5 = input.key === "F5";
