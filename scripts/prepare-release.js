@@ -22,7 +22,7 @@ console.log(`\nPreparando release SyncDB Desktop v${packageJson.version}...`);
 const frontRoot = path.resolve(desktopRoot, config.frontPath);
 const apiRoot = path.resolve(desktopRoot, config.apiPath);
 
-const electronDist = path.resolve(desktopRoot, 'dist');
+const electronDist = path.resolve(desktopRoot, 'dist', 'browser');
 const electronBackend = path.resolve(desktopRoot, 'backend');
 const electronJar = path.resolve(electronBackend, config.jarName || 'syncdb.jar');
 
@@ -231,6 +231,14 @@ clean(electronDist);
 
 console.log('\nCopiando frontend para o Electron...');
 copyDir(angularDist, electronDist);
+
+const frontendIndex = path.join(electronDist, 'index.html');
+if (!fs.existsSync(frontendIndex)) {
+  throw new Error(
+    `Frontend nao foi copiado para ${electronDist} (index.html ausente). ` +
+      'Verifique angularDistPath e o build Angular (configuration desktop).'
+  );
+}
 
 console.log(
   '\nÍcones: use npm run import:icons com syncdb-icons.zip antes do release (web/desktop separados).'

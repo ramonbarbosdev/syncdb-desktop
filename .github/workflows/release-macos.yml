@@ -123,6 +123,12 @@ jobs:
         working-directory: syncdb-desktop
         run: npm run prepare:release
 
+      - name: Verificar frontend embutido
+        working-directory: syncdb-desktop
+        run: |
+          test -f dist/browser/index.html || { echo "dist/browser/index.html ausente"; exit 1; }
+          ls dist/browser/main-*.js | head -1
+
       - name: Build macOS release
         working-directory: syncdb-desktop
         env:

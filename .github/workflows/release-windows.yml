@@ -94,6 +94,21 @@ jobs:
         working-directory: syncdb-desktop
         run: npm run prepare:release
 
+      - name: Verificar frontend embutido
+        working-directory: syncdb-desktop
+        shell: pwsh
+        run: |
+          if (-not (Test-Path "dist/browser/index.html")) {
+            Write-Error "dist/browser/index.html ausente — o instalador ficaria sem Angular."
+            exit 1
+          }
+          $main = Get-ChildItem -Path "dist/browser" -Filter "main-*.js" -File | Select-Object -First 1
+          if (-not $main) {
+            Write-Error "Nenhum main-*.js em dist/browser."
+            exit 1
+          }
+          Write-Host "Frontend OK: $($main.Name)"
+
       - name: Build and publish Windows release
         working-directory: syncdb-desktop
         env:

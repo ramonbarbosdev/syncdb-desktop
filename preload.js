@@ -59,6 +59,7 @@ const updaterBridge = {
 };
 
 contextBridge.exposeInMainWorld("platform", process.platform);
+contextBridge.exposeInMainWorld("syncdbPreloadReady", true);
 
 contextBridge.exposeInMainWorld("desktop", {
   appVersion: packageJson.version,
@@ -68,7 +69,17 @@ contextBridge.exposeInMainWorld("desktop", {
   showNotification: (payload) =>
     ipcRenderer.invoke("desktop:show-notification", payload),
   openLatestRelease: () => ipcRenderer.invoke("updater:open-latest-release"),
-  updater: updaterBridge,
+  checkForUpdates: updaterBridge.checkForUpdates,
+  notifyRendererReady: updaterBridge.notifyRendererReady,
+  startDownload: updaterBridge.startDownload,
+  installUpdate: updaterBridge.installUpdate,
+  onUpdateAvailable: updaterBridge.onUpdateAvailable,
+  onManualUpdateAvailable: updaterBridge.onManualUpdateAvailable,
+  onUpdateNotAvailable: updaterBridge.onUpdateNotAvailable,
+  onProgress: updaterBridge.onProgress,
+  onDownloaded: updaterBridge.onDownloaded,
+  onError: updaterBridge.onError,
+  onInstallFailed: updaterBridge.onInstallFailed,
 });
 
 contextBridge.exposeInMainWorld("updater", updaterBridge);
