@@ -1,6 +1,7 @@
 /.syncdb-icons-cache/
 /dist/
 /release
+/release-build
 /node_modules
 /.env
 /build.config.json

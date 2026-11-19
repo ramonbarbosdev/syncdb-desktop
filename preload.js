@@ -68,7 +68,7 @@ contextBridge.exposeInMainWorld("desktop", {
   showNotification: (payload) =>
     ipcRenderer.invoke("desktop:show-notification", payload),
   openLatestRelease: () => ipcRenderer.invoke("updater:open-latest-release"),
-  ...updaterBridge,
+  updater: updaterBridge,
 });
 
 contextBridge.exposeInMainWorld("updater", updaterBridge);

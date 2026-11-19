@@ -14,10 +14,32 @@ class MacManualUpdater extends UpdateService {
   checkForUpdatesManual(notifyIfUpToDate = true) {
     console.log("[Updater] Consultando GitHub Releases");
 
-    return notifyIfUpdateAvailable(this, notifyIfUpToDate).catch((err) => {
-      console.error("[Updater] Erro ao consultar GitHub Releases:", err);
-      this.sendToRenderer("update-error", err.message);
-    });
+    return notifyIfUpdateAvailable(this, notifyIfUpToDate)
+      .then((result) => {
+        if (!result) {
+          return {
+            status: "not-available",
+            currentVersion: this.getCurrentVersion(),
+          };
+        }
+        if (result.available) {
+          return {
+            status: "available",
+            currentVersion: result.currentVersion,
+            latestVersion: result.latestVersion,
+          };
+        }
+        return {
+          status: "not-available",
+          currentVersion: result.currentVersion,
+          latestVersion: result.latestVersion,
+        };
+      })
+      .catch((err) => {
+        console.error("[Updater] Erro ao consultar GitHub Releases:", err);
+        this.sendToRenderer("update-error", err.message);
+        return { status: "error", message: err?.message ?? String(err) };
+      });
   }
 
   startDownload() {

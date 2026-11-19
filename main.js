@@ -71,9 +71,7 @@ function quitApplication() {
 registerNotificationHandlers(ipcMain, { focusWindow: focusExistingWindow });
 
 // IPC para check manual
-ipcMain.handle("check-update-manual", () => {
-  checkForUpdatesManual();
-});
+ipcMain.handle("check-update-manual", () => checkForUpdatesManual());
 
 ipcMain.handle("updater:renderer-ready", () => {
   markUpdaterRendererReady();

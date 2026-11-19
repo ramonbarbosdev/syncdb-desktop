@@ -107,16 +107,41 @@ class ElectronAutoUpdaterService extends UpdateService {
   checkForUpdatesManual() {
     if (!this.app.isPackaged) {
       console.log("[Updater] Modo DEV: check de atualização ignorado");
-      return undefined;
+      return Promise.resolve({ status: "dev" });
     }
 
     console.log("[Updater] Check manual de atualização solicitado");
     this.updateChecked = false;
-    return this.checkViaGithub(true).finally(() =>
-      this.autoUpdater.checkForUpdates().catch((err) => {
-        console.error("[Updater] Falha na checagem electron-updater:", err);
-      })
-    );
+  return this.checkViaGithub(true)
+      .then((githubResult) =>
+        this.autoUpdater
+          .checkForUpdates()
+          .then(() => githubResult)
+          .catch((err) => {
+            console.error("[Updater] Falha na checagem electron-updater:", err);
+            return githubResult ?? { status: "error", message: err?.message };
+          })
+      )
+      .then((result) => {
+        if (!result) {
+          return {
+            status: "not-available",
+            currentVersion: this.getCurrentVersion(),
+          };
+        }
+        if (result.available) {
+          return {
+            status: "available",
+            currentVersion: result.currentVersion,
+            latestVersion: result.latestVersion,
+          };
+        }
+        return {
+          status: "not-available",
+          currentVersion: result.currentVersion,
+          latestVersion: result.latestVersion,
+        };
+      });
   }
 
   startDownload() {
