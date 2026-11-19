@@ -21,11 +21,26 @@ const packageJson = JSON.parse(
 const version = packageJson.version;
 const tag = `v${version}`;
 
+function platformsFromMessage(message) {
+  const matches = message.match(/\[(win|mac|linux)\]/gi) || [];
+  return [
+    ...new Set(
+      matches.map((token) => token.replace(/^\[|\]$/g, "").toLowerCase())
+    ),
+  ];
+}
+
 const platformArgs = process.argv
   .slice(2)
   .map((value) => value.replace(/^\[|\]$/g, "").toLowerCase())
   .filter((value) => ["win", "mac", "linux"].includes(value));
-const releasePlatforms = [...new Set(platformArgs)];
+
+let releasePlatforms = [...new Set(platformArgs)];
+if (releasePlatforms.length === 0) {
+  const lastMessage = output("git log -1 --format=%B");
+  releasePlatforms = platformsFromMessage(lastMessage);
+}
+
 const platformSuffix =
   releasePlatforms.length > 0
     ? ` ${releasePlatforms.map((platform) => `[${platform}]`).join(" ")}`

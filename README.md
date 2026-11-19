@@ -247,14 +247,20 @@ npm run release:publish -- win linux
 npm run release:publish -- mac
 ```
 
-Ou inclua os marcadores manualmente no commit, por exemplo: `release: v1.2.27 [win] [linux]`.
+Ou inclua os marcadores no commit enviado à `main`, por exemplo: `feat: novo release [win] [linux]`.
+
+Nesse caso o GitHub Actions dispara no push da `main` (sem precisar de tag). A versão publicada é a do `package.json` do commit.
 
 Regras no GitHub Actions:
 
-| Mensagem do commit | O que roda |
-| --- | --- |
-| Sem `[win]`, `[mac]` ou `[linux]` | Windows, macOS e Linux |
-| Com um ou mais marcadores | Só as plataformas indicadas |
+| Gatilho | Mensagem do commit | O que roda |
+| --- | --- | --- |
+| Push na `main` | Com `[win]`, `[mac]` ou `[linux]` | Só as plataformas indicadas |
+| Push na `main` | Sem marcadores | Nada (não dispara release) |
+| Tag `v*` | Sem marcadores | Windows, macOS e Linux |
+| Tag `v*` | Com marcadores | Só as plataformas indicadas |
+
+O `release:publish` herda os marcadores do último commit se você não passar plataformas na linha de comando.
 
 Esse comando:
 
@@ -279,7 +285,7 @@ open "/Applications/SyncDB Desktop.app"
 
 # Publicação Automática
 
-Ao enviar uma tag `v*`, o GitHub Actions inicia automaticamente e usa a mensagem do commit apontado pela tag para decidir quais builds executar (`[win]`, `[mac]`, `[linux]`).
+O GitHub Actions inicia ao enviar commit na `main` com `[win]`, `[mac]` ou `[linux]`, ou ao enviar uma tag `v*`. A mensagem do commit define quais plataformas entram no build.
 
 Fluxo:
 

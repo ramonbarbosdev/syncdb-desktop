@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "v*"
+    branches:
+      - main
 
 permissions:
   contents: write
@@ -16,18 +18,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
+          ref: ${{ github.sha }}
           fetch-depth: 1
       - id: platform
-        shell: bash
-        run: |
-          MSG="$(git log -1 --format=%B)"
-          if echo "$MSG" | grep -qi '\[linux\]'; then
-            echo "should_run=true" >> "$GITHUB_OUTPUT"
-          elif echo "$MSG" | grep -qiE '\[(win|mac|linux)\]'; then
-            echo "should_run=false" >> "$GITHUB_OUTPUT"
-          else
-            echo "should_run=true" >> "$GITHUB_OUTPUT"
-          fi
+        env:
+          GITHUB_REF_TYPE: ${{ github.ref_type }}
+        run: bash .github/scripts/release-platform-check.sh linux
 
   release-linux:
     needs: check
@@ -39,6 +35,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: syncdb-desktop
+          ref: ${{ github.sha }}
           fetch-depth: 0
 
       - name: Checkout Frontend
