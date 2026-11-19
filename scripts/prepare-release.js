@@ -237,6 +237,17 @@ function getNpmInstallCommand(projectRoot) {
 }
 
 function getMavenCommand(projectRoot) {
+  if (process.env.MAVEN_CMD) {
+    return process.env.MAVEN_CMD;
+  }
+
+  const inCi =
+    process.env.GITHUB_ACTIONS === 'true' || process.env.CI === 'true';
+
+  if (inCi) {
+    return 'mvn clean package -DskipTests';
+  }
+
   const windowsWrapper = path.resolve(projectRoot, 'mvnw.cmd');
   const unixWrapper = path.resolve(projectRoot, 'mvnw');
 
@@ -285,7 +296,9 @@ console.log(
 );
 
 console.log('\nBuildando API Spring Boot...');
-run(getMavenCommand(apiRoot), apiRoot);
+const mavenCommand = getMavenCommand(apiRoot);
+console.log(`Comando Maven: ${mavenCommand}`);
+run(mavenCommand, apiRoot);
 
 existsOrFail(apiTarget, 'Pasta target da API nao encontrada.');
 
