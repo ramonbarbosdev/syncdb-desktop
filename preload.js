@@ -13,6 +13,7 @@ contextBridge.exposeInMainWorld("desktop", {
   apiWebSocketUrl: backendWebSocketUrl(),
   showNotification: (payload) =>
     ipcRenderer.invoke("desktop:show-notification", payload),
+  openLatestRelease: () => ipcRenderer.invoke("updater:open-latest-release"),
 });
 
 contextBridge.exposeInMainWorld("updater", {

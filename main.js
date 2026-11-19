@@ -5,7 +5,7 @@ const { applyMacDockIcon } = require("./app-icon");
 
 const APP_USER_MODEL_ID =
   packageJson.build?.appId || "com.ramoncode.syncdb";
-const PRODUCT_NAME = packageJson.build?.productName || "SyncDB Desktop";
+const PRODUCT_NAME = packageJson.build?.productName || "SyncDB";
 
 if (typeof app.setName === "function") {
   app.setName(PRODUCT_NAME);

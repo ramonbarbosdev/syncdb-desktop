@@ -337,8 +337,6 @@ Script local de exemplo:
 npm run release:beta:win
 ```
 
----
-
 # Checklist para Produção
 
 Antes de publicar uma nova versão:

@@ -47,7 +47,7 @@
   },
   "build": {
     "appId": "com.ramoncode.syncdb",
-    "productName": "SyncDB Desktop",
+    "productName": "SyncDB",
     "publish": [
       {
         "provider": "github",
@@ -104,6 +104,11 @@
           "to": "backend/jre"
         }
       ]
+    },
+    "nsis": {
+      "artifactName": "SyncDB-${version}.${ext}",
+      "shortcutName": "SyncDB",
+      "uninstallDisplayName": "SyncDB"
     },
     "mac": {
       "category": "public.app-category.utilities",
