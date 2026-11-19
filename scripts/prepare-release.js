@@ -28,17 +28,51 @@ const electronJar = path.resolve(electronBackend, config.jarName || 'syncdb.jar'
 
 function resolveAngularDistFolder(frontRoot, angularDistPath) {
   const base = path.resolve(frontRoot, angularDistPath || 'dist/browser');
-  const nested = path.join(base, 'browser');
-  if (fs.existsSync(path.join(nested, 'index.html'))) {
-    return nested;
+  const candidates = [path.join(base, 'browser'), base];
+
+  for (const dir of candidates) {
+    if (fs.existsSync(path.join(dir, 'index.html'))) {
+      return dir;
+    }
   }
+
   return base;
 }
 
-const angularDist = resolveAngularDistFolder(
-  frontRoot,
-  config.angularDistPath || 'dist/browser'
-);
+function assertAngularIndex(angularDist) {
+  const indexPath = path.join(angularDist, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    return indexPath;
+  }
+
+  const base = angularDist;
+  const hints = [];
+
+  if (fs.existsSync(base)) {
+    try {
+      const entries = fs.readdirSync(base);
+      hints.push(`Conteudo de ${base}: ${entries.slice(0, 12).join(', ')}${entries.length > 12 ? '...' : ''}`);
+      const nested = path.join(base, 'browser');
+      if (fs.existsSync(nested)) {
+        const nestedEntries = fs.readdirSync(nested);
+        hints.push(
+          `Conteudo de ${nested}: ${nestedEntries.slice(0, 12).join(', ')}${nestedEntries.length > 12 ? '...' : ''}`
+        );
+      }
+    } catch {
+      hints.push(`Nao foi possivel listar ${base}`);
+    }
+  } else {
+    hints.push(`Pasta inexistente: ${base}`);
+  }
+
+  throw new Error(
+    `Build Angular sem index.html em ${angularDist}.\n` +
+      hints.join('\n') +
+      '\nVerifique angularDistPath e a configuration desktop (outputPath).'
+  );
+}
+
 const apiTarget = path.resolve(apiRoot, 'target');
 
 function run(command, cwd) {
@@ -224,7 +258,13 @@ console.log('\nBuildando frontend Angular...');
 run(getNpmInstallCommand(frontRoot), frontRoot);
 run('npm run build -- --configuration desktop --base-href ./', frontRoot);
 
-existsOrFail(angularDist, 'Build do Angular nao encontrado.');
+const angularDist = resolveAngularDistFolder(
+  frontRoot,
+  config.angularDistPath || 'dist/browser'
+);
+assertAngularIndex(angularDist);
+
+console.log(`\nAngular dist: ${angularDist}`);
 
 console.log('\nLimpando dist do Electron...');
 clean(electronDist);
@@ -236,7 +276,7 @@ const frontendIndex = path.join(electronDist, 'index.html');
 if (!fs.existsSync(frontendIndex)) {
   throw new Error(
     `Frontend nao foi copiado para ${electronDist} (index.html ausente). ` +
-      'Verifique angularDistPath e o build Angular (configuration desktop).'
+      `Origem: ${angularDist}`
   );
 }
 
