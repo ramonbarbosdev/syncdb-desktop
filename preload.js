@@ -1,4 +1,5 @@
 const { contextBridge, ipcRenderer } = require("electron");
+const packageJson = require("./package.json");
 const {
   BACKEND_PORT,
   backendApiBaseUrl,
@@ -32,6 +33,7 @@ function subscribeUpdateChannel(channel, callback) {
 contextBridge.exposeInMainWorld("platform", process.platform);
 
 contextBridge.exposeInMainWorld("desktop", {
+  appVersion: packageJson.version,
   backendPort: BACKEND_PORT,
   apiBaseUrl: backendApiBaseUrl(),
   apiWebSocketUrl: backendWebSocketUrl(),
