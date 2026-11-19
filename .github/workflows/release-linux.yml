@@ -82,6 +82,7 @@ jobs:
           }
           JSON
 
+
       - name: Install Electron dependencies
         working-directory: syncdb-desktop
         run: npm ci
