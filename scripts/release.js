@@ -75,8 +75,6 @@ const hasStagedChanges = (() => {
 
 if (hasStagedChanges) {
   run(`git commit -m "release: ${tag}${platformSuffix}"`);
-} else if (platformSuffix) {
-  run(`git commit --allow-empty -m "release: ${tag}${platformSuffix}"`);
 } else {
   console.log("Nenhuma mudanca de versao para commitar.");
 }
