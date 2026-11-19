@@ -26,7 +26,19 @@ const electronDist = path.resolve(desktopRoot, 'dist');
 const electronBackend = path.resolve(desktopRoot, 'backend');
 const electronJar = path.resolve(electronBackend, config.jarName || 'syncdb.jar');
 
-const angularDist = path.resolve(frontRoot, config.angularDistPath || 'dist/browser');
+function resolveAngularDistFolder(frontRoot, angularDistPath) {
+  const base = path.resolve(frontRoot, angularDistPath || 'dist/browser');
+  const nested = path.join(base, 'browser');
+  if (fs.existsSync(path.join(nested, 'index.html'))) {
+    return nested;
+  }
+  return base;
+}
+
+const angularDist = resolveAngularDistFolder(
+  frontRoot,
+  config.angularDistPath || 'dist/browser'
+);
 const apiTarget = path.resolve(apiRoot, 'target');
 
 function run(command, cwd) {
@@ -220,11 +232,9 @@ clean(electronDist);
 console.log('\nCopiando frontend para o Electron...');
 copyDir(angularDist, electronDist);
 
-console.log('\nSincronizando ícones (public/favicon.png → assets)...');
-execSync(`node "${path.join(__dirname, 'sync-app-icons.js')}"`, {
-  cwd: desktopRoot,
-  stdio: 'inherit',
-});
+console.log(
+  '\nÍcones: use npm run import:icons com syncdb-icons.zip antes do release (web/desktop separados).'
+);
 
 console.log('\nBuildando API Spring Boot...');
 run(getMavenCommand(apiRoot), apiRoot);

@@ -145,4 +145,4 @@ if (require.main === module) {
   });
 }
 
-module.exports = { syncAppIcons, resolveFrontRoot };
+module.exports = { syncAppIcons, resolveFrontRoot, writeIcnsWithIconutil };
