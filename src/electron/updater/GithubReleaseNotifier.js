@@ -1,4 +1,4 @@
-const { RELEASES_URL } = require("./UpdateService");
+const { GITHUB_LATEST_RELEASE_URL } = require("./UpdateService");
 const { fetchLatestRelease } = require("./GithubLatestRelease");
 const { isNewerVersion, normalizeVersion } = require("./VersionComparator");
 
@@ -6,7 +6,7 @@ async function notifyIfUpdateAvailable(service, notifyIfUpToDate) {
   const release = await fetchLatestRelease();
   const currentVersion = normalizeVersion(service.getCurrentVersion());
   const latestVersion = normalizeVersion(release.tag_name);
-  const releaseUrl = release.html_url || RELEASES_URL;
+  const releaseUrl = release.html_url || GITHUB_LATEST_RELEASE_URL;
 
   console.log(`[Updater] Versão atual: ${currentVersion}`);
   console.log(`[Updater] Última versão (GitHub): ${latestVersion}`);

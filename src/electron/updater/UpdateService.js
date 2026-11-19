@@ -1,5 +1,7 @@
-const RELEASES_URL =
+const GITHUB_LATEST_RELEASE_URL =
   "https://github.com/ramonbarbosdev/syncdb-desktop/releases/latest";
+
+const DOWNLOAD_SITE_URL = "https://syncdb.ramoncode.com.br/#download";
 
 class UpdateService {
   constructor({ app, shell }) {
@@ -68,14 +70,15 @@ class UpdateService {
     }
 
     console.log("[Updater] Abrindo página de download");
-    return this.shell.openExternal(RELEASES_URL).catch((err) => {
-      console.error("[Updater] Erro ao abrir GitHub Releases:", err);
+    return this.shell.openExternal(DOWNLOAD_SITE_URL).catch((err) => {
+      console.error("[Updater] Erro ao abrir site de download:", err);
       this.sendToRenderer("update-error", err.message);
     });
   }
 }
 
 module.exports = {
-  RELEASES_URL,
+  DOWNLOAD_SITE_URL,
+  GITHUB_LATEST_RELEASE_URL,
   UpdateService,
 };

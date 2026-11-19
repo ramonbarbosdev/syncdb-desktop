@@ -1,4 +1,4 @@
-const { RELEASES_URL, UpdateService } = require("./UpdateService");
+const { DOWNLOAD_SITE_URL, UpdateService } = require("./UpdateService");
 const { MacManualUpdater } = require("./MacManualUpdater");
 const { notifyIfUpdateAvailable } = require("./GithubReleaseNotifier");
 
@@ -67,7 +67,7 @@ class ElectronAutoUpdaterService extends UpdateService {
       this.sendToRenderer("update-available", {
         platform: process.platform,
         mode: "manual-download",
-        releasesUrl: RELEASES_URL,
+        releasesUrl: DOWNLOAD_SITE_URL,
         currentVersion: this.getCurrentVersion(),
         version: info.version,
         availableVersion: info.version,
@@ -177,7 +177,7 @@ class ElectronAutoUpdaterService extends UpdateService {
       console.error("[Updater] Erro ao instalar atualização:", err);
       this.sendToRenderer("update-install-failed", {
         message: err?.message ?? String(err),
-        fallbackUrl: RELEASES_URL,
+        fallbackUrl: DOWNLOAD_SITE_URL,
       });
     }
   }
