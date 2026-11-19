@@ -1,7 +1,7 @@
 const GITHUB_LATEST_RELEASE_URL =
   "https://github.com/ramonbarbosdev/syncdb-desktop/releases/latest";
 
-const DOWNLOAD_SITE_URL = "https://syncdb.ramoncode.com.br/#download";
+const DOWNLOAD_SITE_URL = "https://syncdb.ramoncode.com.br/download";
 
 class UpdateService {
   constructor({ app, shell }) {
